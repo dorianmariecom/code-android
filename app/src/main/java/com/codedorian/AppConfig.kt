@@ -1,13 +1,7 @@
 package com.codedorian
 
 object AppConfig {
-    val environment: String = when {
-        BuildConfig.CODE_ENV_TEST -> "test"
-        BuildConfig.CODE_ENV_LOCALHOST -> "localhost"
-        BuildConfig.CODE_ENV_DEVELOPMENT -> "development"
-        BuildConfig.CODE_ENV_STAGING -> "staging"
-        else -> "production"
-    }
+    val environment: String = BuildConfig.CODE_ENV
 
     val baseDomain: String = when (environment) {
         "test" -> "http://localhost:3000"
@@ -18,7 +12,7 @@ object AppConfig {
     }
 
     val baseURL: String = baseDomain
-    val configurationsURL: String = "$baseDomain/configurations/ios_v1.json"
+    val configurationsURL: String = "$baseDomain/configurations/android_v1.json"
     val devicesURL: String = "$baseDomain/devices"
     var csrfToken: String? = null
 }
