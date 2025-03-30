@@ -2,8 +2,8 @@
 
 set -e
 
-rsync -r common test
-rsync -r common localhost
-rsync -r common development
-rsync -r common staging
-rsync -r common production
+rsync -r common/ test
+rsync -r common/ localhost
+rsync -r common/ development
+rsync -r common/ staging
+rsync -r common/ production

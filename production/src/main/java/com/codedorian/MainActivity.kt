@@ -12,7 +12,6 @@ import dev.hotwire.navigation.util.applyDefaultImeWindowInsets
 
 class MainActivity : HotwireActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        Toast.makeText(this, BuildConfig.CODE_ENV, Toast.LENGTH_SHORT).show()
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
