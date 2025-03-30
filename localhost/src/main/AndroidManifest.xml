@@ -12,8 +12,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.BlackOnWhite"
-        tools:replace="android:theme"
+        android:theme="@style/MyTheme.DayNight"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity

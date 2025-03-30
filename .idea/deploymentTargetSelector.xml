@@ -4,6 +4,14 @@
     <selectionStates>
       <SelectionState runConfigName="test">
         <option name="selectionMode" value="DROPDOWN" />
+        <DropdownSelection timestamp="2025-03-30T19:20:42.869850Z">
+          <Target type="DEFAULT_BOOT">
+            <handle>
+              <DeviceId pluginId="LocalEmulator" identifier="path=/Users/dorianmariefr/.android/avd/Medium_Phone.avd" />
+            </handle>
+          </Target>
+        </DropdownSelection>
+        <DialogSelection />
       </SelectionState>
       <SelectionState runConfigName="development">
         <option name="selectionMode" value="DROPDOWN" />
@@ -15,9 +23,6 @@
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
       <SelectionState runConfigName="localhost">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="common">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
