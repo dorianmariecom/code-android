@@ -7,7 +7,7 @@
     <option name="DEPLOY_AS_INSTANT" value="false" />
     <option name="ARTIFACT_NAME" value="" />
     <option name="PM_INSTALL_OPTIONS" value="" />
-    <option name="ALL_USERS" value="false" />
+    <option name="ALL_USERS" value="true" />
     <option name="ALWAYS_INSTALL_WITH_PM" value="false" />
     <option name="ALLOW_ASSUME_VERIFIED" value="false" />
     <option name="CLEAR_APP_STORAGE" value="false" />
@@ -67,6 +67,7 @@
     <option name="SEARCH_ACTIVITY_IN_GLOBAL_SCOPE" value="false" />
     <option name="SKIP_ACTIVITY_VALIDATION" value="false" />
     <method v="2">
+      <option name="Android.Gradle.BeforeRunTask" enabled="true" goal="clean" />
       <option name="Android.Gradle.BeforeRunTask" enabled="true" goal="assembleStaging" />
     </method>
   </configuration>

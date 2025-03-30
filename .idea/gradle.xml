@@ -10,7 +10,11 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/development" />
+            <option value="$PROJECT_DIR$/localhost" />
+            <option value="$PROJECT_DIR$/production" />
+            <option value="$PROJECT_DIR$/staging" />
+            <option value="$PROJECT_DIR$/test" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />

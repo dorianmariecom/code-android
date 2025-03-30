@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<component name="AndroidBuildVariants">
+  <buildVariants>
+    <buildVariant moduleName="app" name="test" active="false"/>
+    <buildVariant moduleName="app" name="localhost" active="false"/>
+    <buildVariant moduleName="app" name="development" active="false"/>
+    <buildVariant moduleName="app" name="staging" active="true"/>
+    <buildVariant moduleName="app" name="production" active="false"/>
+  </buildVariants>
+</component>

@@ -20,4 +20,8 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "codedorian"
-include(":app")
+include(":test")
+include(":localhost")
+include(":development")
+include(":staging")
+include(":production")
