@@ -42,7 +42,7 @@ android {
             versionNameSuffix = "-test"
             signingConfig = signingConfigs.getByName("ttest")
             buildConfigField("String", "CODE_ENV", "\"test\"")
-            resValue("string", "app_name", "codedorian - test")
+            resValue("string", "app_name", "test")
         }
     }
     compileOptions {
