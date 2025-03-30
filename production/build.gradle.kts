@@ -13,8 +13,6 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildFeatures {
@@ -26,30 +24,6 @@ android {
 
         delete("release")
 
-        create("ttest") {
-            storeFile = file("keystores/test.keystore")
-            storePassword = "testtest"
-            keyAlias = "test"
-            keyPassword = "testtest"
-        }
-        create("localhost") {
-            storeFile = file("keystores/localhost.keystore")
-            storePassword = "localhostlocalhost"
-            keyAlias = "localhost"
-            keyPassword = "localhostlocalhost"
-        }
-        create("development") {
-            storeFile = file("keystores/development.keystore")
-            storePassword = "developmentdevelopment"
-            keyAlias = "development"
-            keyPassword = "developmentdevelopment"
-        }
-        create("staging") {
-            storeFile = file("keystores/staging.keystore")
-            storePassword = "stagingstaging"
-            keyAlias = "staging"
-            keyPassword = "stagingstaging"
-        }
         create("production") {
             storeFile = file("keystores/production.keystore")
             storePassword = "productionproduction"
@@ -63,30 +37,6 @@ android {
 
         delete("release")
 
-        create("ttest") {
-            applicationIdSuffix = ".test"
-            versionNameSuffix = "-test"
-            buildConfigField("String", "CODE_ENV", "\"test\"")
-            signingConfig = signingConfigs.getByName("ttest")
-        }
-        create("localhost") {
-            applicationIdSuffix = ".localhost"
-            versionNameSuffix = "-localhost"
-            buildConfigField("String", "CODE_ENV", "\"localhost\"")
-            signingConfig = signingConfigs.getByName("localhost")
-        }
-        create("development") {
-            applicationIdSuffix = ".development"
-            versionNameSuffix = "-development"
-            buildConfigField("String", "CODE_ENV", "\"development\"")
-            signingConfig = signingConfigs.getByName("staging")
-        }
-        create("staging") {
-            applicationIdSuffix = ".staging"
-            versionNameSuffix = "-staging"
-            buildConfigField("String", "CODE_ENV", "\"staging\"")
-            signingConfig = signingConfigs.getByName("staging")
-        }
         create("production") {
             applicationIdSuffix = ""
             versionNameSuffix = ""
