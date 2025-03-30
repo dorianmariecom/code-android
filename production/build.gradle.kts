@@ -41,6 +41,7 @@ android {
             applicationIdSuffix = ""
             versionNameSuffix = ""
             buildConfigField("String", "CODE_ENV", "\"production\"")
+            resValue("string", "app_name", "codedorian")
             signingConfig = signingConfigs.getByName("production")
         }
     }

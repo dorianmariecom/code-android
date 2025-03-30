@@ -42,6 +42,7 @@ android {
             versionNameSuffix = "-staging"
             buildConfigField("String", "CODE_ENV", "\"staging\"")
             signingConfig = signingConfigs.getByName("staging")
+            resValue("string", "app_name", "codedorian - staging")
         }
     }
     compileOptions {

@@ -40,8 +40,9 @@ android {
         create("localhost") {
             applicationIdSuffix = ".localhost"
             versionNameSuffix = "-localhost"
-            buildConfigField("String", "CODE_ENV", "\"localhost\"")
             signingConfig = signingConfigs.getByName("localhost")
+            buildConfigField("String", "CODE_ENV", "\"localhost\"")
+            resValue("string", "app_name", "codedorian - local")
         }
     }
     compileOptions {
