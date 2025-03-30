@@ -1,6 +1,5 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="production" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false">
-    <module name="codedorian.production" />
     <option name="ANDROID_RUN_CONFIGURATION_SCHEMA_VERSION" value="1" />
     <option name="DEPLOY" value="true" />
     <option name="DEPLOY_APK_FROM_BUNDLE" value="false" />
@@ -67,6 +66,7 @@
     <option name="SEARCH_ACTIVITY_IN_GLOBAL_SCOPE" value="false" />
     <option name="SKIP_ACTIVITY_VALIDATION" value="false" />
     <method v="2">
+      <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_sync" />
       <option name="Android.Gradle.BeforeRunTask" enabled="true" goal="assembleProduction" />
     </method>
   </configuration>
