@@ -1,5 +1,11 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="localhost" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false">
+  <configuration
+    default="false"
+    name="localhost"
+    type="AndroidRunConfigurationType"
+    factoryName="Android App"
+    activateToolWindowBeforeRun="false"
+  >
     <module name="codedorian.localhost" />
     <option name="ANDROID_RUN_CONFIGURATION_SCHEMA_VERSION" value="1" />
     <option name="DEPLOY" value="true" />
@@ -18,7 +24,10 @@
     <option name="RESTORE_FILE" value="" />
     <option name="CLEAR_LOGCAT" value="false" />
     <option name="SHOW_LOGCAT_AUTOMATICALLY" value="false" />
-    <option name="TARGET_SELECTION_MODE" value="DEVICE_AND_SNAPSHOT_COMBO_BOX" />
+    <option
+      name="TARGET_SELECTION_MODE"
+      value="DEVICE_AND_SNAPSHOT_COMBO_BOX"
+    />
     <option name="SELECTED_CLOUD_MATRIX_CONFIGURATION_ID" value="-1" />
     <option name="SELECTED_CLOUD_MATRIX_PROJECT_ID" value="" />
     <option name="DEBUGGER_TYPE" value="Auto" />
@@ -26,7 +35,10 @@
       <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
       <option name="SHOW_STATIC_VARS" value="true" />
       <option name="WORKING_DIR" value="" />
-      <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
+      <option
+        name="TARGET_LOGGING_CHANNELS"
+        value="lldb process:gdb-remote packets"
+      />
       <option name="SHOW_OPTIMIZED_WARNING" value="true" />
       <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
       <option name="DEBUG_SANDBOX_SDK" value="false" />
@@ -35,7 +47,10 @@
       <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
       <option name="SHOW_STATIC_VARS" value="true" />
       <option name="WORKING_DIR" value="" />
-      <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
+      <option
+        name="TARGET_LOGGING_CHANNELS"
+        value="lldb process:gdb-remote packets"
+      />
       <option name="SHOW_OPTIMIZED_WARNING" value="true" />
       <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
       <option name="DEBUG_SANDBOX_SDK" value="false" />
@@ -48,7 +63,10 @@
       <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
       <option name="SHOW_STATIC_VARS" value="true" />
       <option name="WORKING_DIR" value="" />
-      <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
+      <option
+        name="TARGET_LOGGING_CHANNELS"
+        value="lldb process:gdb-remote packets"
+      />
       <option name="SHOW_OPTIMIZED_WARNING" value="true" />
       <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
       <option name="DEBUG_SANDBOX_SDK" value="false" />
@@ -57,7 +75,10 @@
       <option name="ADVANCED_PROFILING_ENABLED" value="false" />
       <option name="STARTUP_PROFILING_ENABLED" value="false" />
       <option name="STARTUP_CPU_PROFILING_ENABLED" value="false" />
-      <option name="STARTUP_CPU_PROFILING_CONFIGURATION_NAME" value="Java/Kotlin Method Sample (legacy)" />
+      <option
+        name="STARTUP_CPU_PROFILING_CONFIGURATION_NAME"
+        value="Java/Kotlin Method Sample (legacy)"
+      />
       <option name="STARTUP_NATIVE_MEMORY_PROFILING_ENABLED" value="false" />
       <option name="NATIVE_MEMORY_SAMPLE_RATE_BYTES" value="2048" />
     </Profilers>
@@ -67,8 +88,16 @@
     <option name="SEARCH_ACTIVITY_IN_GLOBAL_SCOPE" value="false" />
     <option name="SKIP_ACTIVITY_VALIDATION" value="false" />
     <method v="2">
-      <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_sync" />
-      <option name="Android.Gradle.BeforeRunTask" enabled="true" goal="assembleLocalhost" />
+      <option
+        name="ToolBeforeRunTask"
+        enabled="true"
+        actionId="Tool_External Tools_sync"
+      />
+      <option
+        name="Android.Gradle.BeforeRunTask"
+        enabled="true"
+        goal="assembleLocalhost"
+      />
     </method>
   </configuration>
 </component>
