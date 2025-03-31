@@ -1,84 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/res/res/values/themes.xml -->
 <resources xmlns:tools="http://schemas.android.com/tools">
-
-    <!--Top level DayNight theme to be used in AndroidManifest.xml-->
-    <style name="MyTheme.DayNight" parent="Base.MyTheme"/>
-
-    <style name="MyTheme.DayNight.Black">
-        <item name="colorSurface">@color/black</item>
-        <item name="colorOnSurface">@color/white</item>
-        <item name="android:colorBackground">@color/black</item>
-        <item name="android:statusBarColor">@color/black</item>
-        <item name="android:navigationBarColor">@color/black</item>
-        <item name="android:windowLightStatusBar">false</item>
-        <item name="android:windowLightNavigationBar" tools:ignore="NewApi">false</item>
-    </style>
-
-    <!--Base custom theme which will be shared between both light and dark theme variants-->
-    <style name="Base.MyTheme" parent="Base.MaterialThemeBuilder">
-        <!--Material color attributes -->
+    <style name="CodeDorian.Theme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="alphaEmphasisDisabled">@dimen/alpha_emphasis_disabled</item>
+        <item name="alphaEmphasisHigh">@dimen/alpha_emphasis_high</item>
+        <item name="alphaEmphasisMedium">@dimen/alpha_emphasis_medium</item>
+        <item name="android:colorBackground">@color/white</item>
+        <item name="android:navigationBarColor">@color/white</item>
+        <item name="android:navigationBarDividerColor">@color/black</item>
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:windowLightNavigationBar" tools:ignore="NewApi">true</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="appBarLayoutStyle">@style/Widget.MyTheme.AppBarLayout</item>
+        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.MyTheme.BottomSheetDialog</item>
+        <item name="buttonOutlineStyle">@style/Widget.MyTheme.OutlinedButton</item>
+        <item name="buttonTextStyle">@style/Widget.MyTheme.TextButton</item>
+        <item name="colorAccent">@color/black</item>
+        <item name="colorError">@color/black</item>
+        <item name="colorOnBackground">@color/black</item>
+        <item name="colorOnError">@color/white</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorOnSurface">@color/black</item>
         <item name="colorPrimary">@color/black</item>
+        <item name="colorPrimaryDark">@color/black</item>
         <item name="colorPrimaryVariant">@color/black</item>
         <item name="colorSecondary">@color/black</item>
         <item name="colorSecondaryVariant">@color/black</item>
-
-        <item name="android:colorBackground">@color/white</item>
         <item name="colorSurface">@color/white</item>
-        <item name="colorError">@color/black</item>
-
-        <item name="colorOnPrimary">@color/white</item>
-        <item name="colorOnSecondary">@color/white</item>
-        <item name="colorOnBackground">@color/black</item>
-        <item name="colorOnSurface">@color/black</item>
-        <item name="colorOnError">@color/white</item>
-
-        <!--Material type attributes-->
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">20dp</item>
+        <item name="elevationOverlayEnabled">false</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.MyTheme.AlertDialog</item>
+        <item name="materialButtonStyle">@style/Widget.MyTheme.Button</item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.MyTheme.LargeComponent</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.MyTheme.MediumComponent</item>
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.MyTheme.SmallComponent</item>
+        <item name="textAppearanceBody1">@style/TextAppearance.MyTheme.Body1</item>
+        <item name="textAppearanceBody2">@style/TextAppearance.MyTheme.Body2</item>
+        <item name="textAppearanceButton">@style/TextAppearance.MyTheme.Button</item>
+        <item name="textAppearanceCaption">@style/TextAppearance.MyTheme.Caption</item>
         <item name="textAppearanceHeadline1">@style/TextAppearance.MyTheme.Headline1</item>
         <item name="textAppearanceHeadline2">@style/TextAppearance.MyTheme.Headline2</item>
         <item name="textAppearanceHeadline3">@style/TextAppearance.MyTheme.Headline3</item>
         <item name="textAppearanceHeadline4">@style/TextAppearance.MyTheme.Headline4</item>
         <item name="textAppearanceHeadline5">@style/TextAppearance.MyTheme.Headline5</item>
         <item name="textAppearanceHeadline6">@style/TextAppearance.MyTheme.Headline6</item>
+        <item name="textAppearanceOverline">@style/TextAppearance.MyTheme.Overline</item>
         <item name="textAppearanceSubtitle1">@style/TextAppearance.MyTheme.Subtitle1</item>
         <item name="textAppearanceSubtitle2">@style/TextAppearance.MyTheme.Subtitle2</item>
-        <item name="textAppearanceBody1">@style/TextAppearance.MyTheme.Body1</item>
-        <item name="textAppearanceBody2">@style/TextAppearance.MyTheme.Body2</item>
-        <item name="textAppearanceButton">@style/TextAppearance.MyTheme.Button</item>
-        <item name="textAppearanceCaption">@style/TextAppearance.MyTheme.Caption</item>
-        <item name="textAppearanceOverline">@style/TextAppearance.MyTheme.Overline</item>
-
-        <!--Material shape attributes-->
-        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.MyTheme.SmallComponent</item>
-        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.MyTheme.MediumComponent</item>
-        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.MyTheme.LargeComponent</item>
-
-        <!--Component styles-->
-        <item name="materialAlertDialogTheme">@style/ThemeOverlay.MyTheme.AlertDialog</item>
-        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.MyTheme.BottomSheetDialog</item>
-        <item name="toolbarStyle">@style/Widget.MyTheme.Toolbar</item>
-        <item name="appBarLayoutStyle">@style/Widget.MyTheme.AppBarLayout</item>
-        <item name="materialButtonStyle">@style/Widget.MyTheme.Button</item>
-        <item name="buttonOutlineStyle">@style/Widget.MyTheme.OutlinedButton</item>
-        <item name="buttonTextStyle">@style/Widget.MyTheme.TextButton</item>
         <item name="toolbarNavigationButtonStyle">@style/Widget.MyTheme.Toolbar.Navigation.Tinted</item>
+        <item name="toolbarStyle">@style/Widget.MyTheme.Toolbar</item>
     </style>
-
-    <style name="Base.MaterialThemeBuilder" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="alphaEmphasisHigh">@dimen/alpha_emphasis_high</item>
-        <item name="alphaEmphasisMedium">@dimen/alpha_emphasis_medium</item>
-        <item name="alphaEmphasisDisabled">@dimen/alpha_emphasis_disabled</item>
-
-        <item name="android:statusBarColor">@color/transparent</item>
-        <item name="android:windowLightStatusBar">true</item>
-        <item name="android:navigationBarColor">@color/transparent</item>
-        <item name="android:windowLightNavigationBar">true</item>
-        <item name="android:navigationBarDividerColor">@color/transparent</item>
-
-        <item name="elevationOverlayEnabled">false</item>
-
-        <!--Remap legacy AppCompat attributes to MaterialComponent attributes-->
-        <item name="colorPrimaryDark">?colorPrimaryVariant</item>
-        <item name="colorAccent">?colorPrimaryVariant</item>
-    </style>
-
+    <style name="ShapeAppearance.MyTheme.LargeComponent" parent="CodeDorian.Theme" />
+    <style name="ShapeAppearance.MyTheme.MediumComponent" parent="CodeDorian.Theme" />
+    <style name="ShapeAppearance.MyTheme.SmallComponent" parent="CodeDorian.Theme" />
+    <style name="ShapeAppearanceOverlay.MyTheme.Rounded" parent="CodeDorian.Theme" />
+    <style name="TextAppearance.MyTheme.Body1" parent="CodeDorian.Theme" />
+    <style name="TextAppearance.MyTheme.Body2" parent="CodeDorian.Theme" />
+    <style name="TextAppearance.MyTheme.Button" parent="CodeDorian.Theme" />
+    <style name="TextAppearance.MyTheme.Caption" parent="CodeDorian.Theme" />
+    <style name="TextAppearance.MyTheme.Headline1" parent="CodeDorian.Theme" />
+    <style name="TextAppearance.MyTheme.Headline2" parent="CodeDorian.Theme" />
+    <style name="TextAppearance.MyTheme.Headline3" parent="CodeDorian.Theme" />
+    <style name="TextAppearance.MyTheme.Headline4" parent="CodeDorian.Theme" />
+    <style name="TextAppearance.MyTheme.Headline5" parent="CodeDorian.Theme" />
+    <style name="TextAppearance.MyTheme.Headline6" parent="CodeDorian.Theme" />
+    <style name="TextAppearance.MyTheme.Overline" parent="CodeDorian.Theme" />
+    <style name="TextAppearance.MyTheme.Subtitle1" parent="CodeDorian.Theme" />
+    <style name="TextAppearance.MyTheme.Subtitle2" parent="CodeDorian.Theme" />
+    <style name="ThemeOverlay.MyTheme.AlertDialog" parent="CodeDorian.Theme" />
+    <style name="ThemeOverlay.MyTheme.BottomSheetDialog" parent="CodeDorian.Theme" />
+    <style name="Widget.MyTheme.AppBarLayout" parent="CodeDorian.Theme" />
+    <style name="Widget.MyTheme.BottomSheet.Modal" parent="CodeDorian.Theme" />
+    <style name="Widget.MyTheme.Button" parent="CodeDorian.Theme" />
+    <style name="Widget.MyTheme.OutlinedButton" parent="CodeDorian.Theme" />
+    <style name="Widget.MyTheme.TextButton" parent="CodeDorian.Theme" />
+    <style name="Widget.MyTheme.Toolbar" parent="CodeDorian.Theme" />
+    <style name="Widget.MyTheme.Toolbar.Navigation.Tinted" parent="CodeDorian.Theme" />
 </resources>

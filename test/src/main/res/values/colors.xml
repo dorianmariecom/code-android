@@ -1,56 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <!--Color-->
-
-    <!--Material uses an organized approach to applying color by providing a set of attributes -->
-    <!--which define the color of generalized UI elements such as backgrounds, surfaces, type -->
-    <!--and icons. Using these attributes throughout your app makes it easy to change a single -->
-    <!--color, or the entire theme, and have those changes cascade through the interface.-->
-
-    <!--Color is customized by overriding Material Components color attributes with custom -->
-    <!--color values. In this project, your theme's color attributes are already overridden -->
-    <!--with default values defined in this file, color.xml.  Change any of the values in -->
-    <!--this file to see changes applied across all elements of your app.-->
-
-    <!--LIGHT COLOR THEME-->
-
-    <!--colorPrimary colors map to components and elements, such as app bars and buttons. -->
-    <!--colorSecondary colors are most often used as accents on components, such as FABs and -->
-    <!--selection controls.-->
-    <color name="primary">@color/black</color>
-    <color name="primary_dark">@color/black</color>
-    <color name="primary_variant">@color/black</color>
-    <color name="secondary">@color/white</color>
-    <color name="secondary_variant">@color/white</color>
-
-    <!--colorBackground appears behind scrollable content and is used for the default window-->
-    <!--background. colorSurface is mapped to the surface of components such as cards, sheets-->
-    <!--and menus. colorError is used to indicate an error state for components such as-->
-    <!--text fields.-->
-    <color name="background">@color/white</color>
-    <color name="surface">@color/white</color>
-    <color name="error">@color/black</color>
-
-    <!--"On" colors define how text, icons and strokes are colored in relation to the surface-->
-    <!--on which they appear.-->
-    <color name="on_primary">@color/white</color>
-    <color name="on_secondary">@color/black</color>
-    <color name="on_background">@color/black</color>
-    <color name="on_surface">@color/black</color>
-    <color name="on_error">@color/white</color>
-
-    <!-- Generic colors -->
     <color name="white">#FFFFFFFF</color>
     <color name="black">#FF000000</color>
     <color name="transparent">#00000000</color>
-
-    <!-- Update all other colors to reference black or white -->
-    <color name="ripple">@color/black</color>
-    <color name="scrim">@color/black</color>
-    <color name="status_bar">@color/black</color>
-    <color name="navigation_bar">@color/black</color>
-    <color name="surface_variant">@color/white</color>
-    <color name="outline">@color/black</color>
-
 </resources>
