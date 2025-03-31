@@ -2,6 +2,8 @@
 <!-- https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/res/res/values/themes.xml -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="CodeDorian.Theme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textStyle">bold</item>
         <item name="alphaEmphasisDisabled">@dimen/alpha_emphasis_disabled</item>
         <item name="alphaEmphasisHigh">@dimen/alpha_emphasis_high</item>
         <item name="alphaEmphasisMedium">@dimen/alpha_emphasis_medium</item>
@@ -53,10 +55,15 @@
         <item name="toolbarNavigationButtonStyle">@style/Widget.MyTheme.Toolbar.Navigation.Tinted</item>
         <item name="toolbarStyle">@style/Widget.MyTheme.Toolbar</item>
     </style>
+    <style name="CodeDorian.Theme.Padded" parent="CodeDorian.Theme">
+        <item name="android:padding">8dp</item>
+    </style>
+    <style name="MyTheme.DayNight.Black" parent="CodeDorian.Theme" />
     <style name="ShapeAppearance.MyTheme.LargeComponent" parent="CodeDorian.Theme" />
     <style name="ShapeAppearance.MyTheme.MediumComponent" parent="CodeDorian.Theme" />
     <style name="ShapeAppearance.MyTheme.SmallComponent" parent="CodeDorian.Theme" />
     <style name="ShapeAppearanceOverlay.MyTheme.Rounded" parent="CodeDorian.Theme" />
+    <style name="TextAppearance.AppCompat.Menu" parent="CodeDorian.Theme" />
     <style name="TextAppearance.MyTheme.Body1" parent="CodeDorian.Theme" />
     <style name="TextAppearance.MyTheme.Body2" parent="CodeDorian.Theme" />
     <style name="TextAppearance.MyTheme.Button" parent="CodeDorian.Theme" />
@@ -77,6 +84,6 @@
     <style name="Widget.MyTheme.Button" parent="CodeDorian.Theme" />
     <style name="Widget.MyTheme.OutlinedButton" parent="CodeDorian.Theme" />
     <style name="Widget.MyTheme.TextButton" parent="CodeDorian.Theme" />
-    <style name="Widget.MyTheme.Toolbar" parent="CodeDorian.Theme" />
+    <style name="Widget.MyTheme.Toolbar" parent="CodeDorian.Theme.Padded" />
     <style name="Widget.MyTheme.Toolbar.Navigation.Tinted" parent="CodeDorian.Theme" />
 </resources>

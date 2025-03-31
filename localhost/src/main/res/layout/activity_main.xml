@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.fragment.app.FragmentContainerView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@color/white"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/main_nav_host"
-    android:name="dev.hotwire.navigation.navigator.NavigatorHost"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:theme="@style/CodeDorian.Theme"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    style="@style/CodeDorian.Theme"
-    app:defaultNavHost="false" />
+    tools:context=".MainActivity">
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/main_navigator_host"
+        android:name="dev.hotwire.navigation.navigator.NavigatorHost"
+        android:theme="@style/CodeDorian.Theme"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+

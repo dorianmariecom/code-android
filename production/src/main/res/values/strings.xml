@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">codedorian</string>
-    <string name="error_web_home">Error</string>
-    <string name="error_web_home_description">Try again</string>
-    <string name="menu_progress">Loading…</string>
+    <string name="hotwire_error_message">error, try again</string>
+    <string name="hotwire_file_chooser_select">select file</string>
+    <string name="hotwire_file_chooser_select_multiple">select file(s)</string>
+    <string name="hotwire_dialog_ok">ok</string>
+    <string name="hotwire_dialog_cancel">cancel</string>
 </resources>

@@ -15,7 +15,7 @@ class MainActivity : HotwireActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        findViewById<View>(R.id.main_nav_host).applyDefaultImeWindowInsets()
+        findViewById<View>(R.id.main_navigator_host).applyDefaultImeWindowInsets()
         Hotwire.loadPathConfiguration(
             context = this,
             location = PathConfiguration.Location(
@@ -28,7 +28,7 @@ class MainActivity : HotwireActivity() {
         NavigatorConfiguration(
             name = "main",
             startLocation = AppConfig.baseURL,
-            navigatorHostId = R.id.main_nav_host
+            navigatorHostId = R.id.main_navigator_host
         )
     )
 }
