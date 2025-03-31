@@ -2,8 +2,7 @@
 <!-- https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/res/res/values/themes.xml -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="CodeDorian.Theme" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <item name="android:textSize">24sp</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">16dp</item>
         <item name="alphaEmphasisDisabled">@dimen/alpha_emphasis_disabled</item>
         <item name="alphaEmphasisHigh">@dimen/alpha_emphasis_high</item>
         <item name="alphaEmphasisMedium">@dimen/alpha_emphasis_medium</item>
@@ -58,6 +57,9 @@
     <style name="CodeDorian.Theme.Padded" parent="CodeDorian.Theme">
         <item name="android:padding">8dp</item>
     </style>
+    <style name="CodeDorian.Theme.Bold" parent="CodeDorian.Theme">
+        <item name="android:textStyle">bold</item>
+    </style>
     <style name="MyTheme.DayNight.Black" parent="CodeDorian.Theme" />
     <style name="ShapeAppearance.MyTheme.LargeComponent" parent="CodeDorian.Theme" />
     <style name="ShapeAppearance.MyTheme.MediumComponent" parent="CodeDorian.Theme" />
@@ -68,12 +70,12 @@
     <style name="TextAppearance.MyTheme.Body2" parent="CodeDorian.Theme" />
     <style name="TextAppearance.MyTheme.Button" parent="CodeDorian.Theme" />
     <style name="TextAppearance.MyTheme.Caption" parent="CodeDorian.Theme" />
-    <style name="TextAppearance.MyTheme.Headline1" parent="CodeDorian.Theme" />
-    <style name="TextAppearance.MyTheme.Headline2" parent="CodeDorian.Theme" />
-    <style name="TextAppearance.MyTheme.Headline3" parent="CodeDorian.Theme" />
-    <style name="TextAppearance.MyTheme.Headline4" parent="CodeDorian.Theme" />
-    <style name="TextAppearance.MyTheme.Headline5" parent="CodeDorian.Theme" />
-    <style name="TextAppearance.MyTheme.Headline6" parent="CodeDorian.Theme" />
+    <style name="TextAppearance.MyTheme.Headline1" parent="CodeDorian.Theme.Bold" />
+    <style name="TextAppearance.MyTheme.Headline2" parent="CodeDorian.Theme.Bold" />
+    <style name="TextAppearance.MyTheme.Headline3" parent="CodeDorian.Theme.Bold" />
+    <style name="TextAppearance.MyTheme.Headline4" parent="CodeDorian.Theme.Bold" />
+    <style name="TextAppearance.MyTheme.Headline5" parent="CodeDorian.Theme.Bold" />
+    <style name="TextAppearance.MyTheme.Headline6" parent="CodeDorian.Theme.Bold" />
     <style name="TextAppearance.MyTheme.Overline" parent="CodeDorian.Theme" />
     <style name="TextAppearance.MyTheme.Subtitle1" parent="CodeDorian.Theme" />
     <style name="TextAppearance.MyTheme.Subtitle2" parent="CodeDorian.Theme" />
