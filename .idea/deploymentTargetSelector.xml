@@ -7,7 +7,10 @@
         <DropdownSelection timestamp="2025-03-31T09:29:31.251654Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=/Users/dorianmariefr/.android/avd/Medium_Phone.avd" />
+              <DeviceId
+                pluginId="LocalEmulator"
+                identifier="path=/Users/dorianmariefr/.android/avd/Medium_Phone.avd"
+              />
             </handle>
           </Target>
         </DropdownSelection>
@@ -21,11 +24,18 @@
       </SelectionState>
       <SelectionState runConfigName="production">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-03-31T23:16:43.134480Z">
-          <Target type="DEFAULT_BOOT">
+        <DropdownSelection timestamp="2025-04-02T07:39:25.998898Z">
+          <Target type="BOOT_WITH_SNAPSHOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=/Users/dorianmariefr/.android/avd/Medium_Phone.avd" />
+              <DeviceId
+                pluginId="LocalEmulator"
+                identifier="path=/Users/dorianmariefr/.android/avd/Medium_Phone.avd"
+              />
             </handle>
+            <Snapshot
+              name="snap_2025-04-02_09-01-32"
+              path="$USER_HOME$/.android/avd/Medium_Phone.avd/snapshots/snap_2025-04-02_09-01-32"
+            />
           </Target>
         </DropdownSelection>
         <DialogSelection />

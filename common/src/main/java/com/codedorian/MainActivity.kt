@@ -4,8 +4,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.enableEdgeToEdge
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import dev.hotwire.core.config.Hotwire
-import dev.hotwire.core.turbo.config.PathConfiguration
 import dev.hotwire.navigation.activities.HotwireActivity
 import dev.hotwire.navigation.navigator.NavigatorConfiguration
 import dev.hotwire.navigation.util.applyDefaultImeWindowInsets
@@ -20,34 +18,22 @@ class MainActivity : HotwireActivity() {
         findViewById<View>(R.id.main).applyDefaultImeWindowInsets()
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-
-        bottomNav.setOnItemSelectedListener { menuItem ->
-            val selectedTab = tabs.firstOrNull { it.menuId == menuItem.itemId }
-            if (selectedTab != null) {
-                showTab(selectedTab)
-                true
-            } else {
-                false
-            }
+        bottomNav.setOnItemSelectedListener { tab ->
+            val selectedTab = tabs.first { it.menuId == tab.itemId }
+            showTab(selectedTab)
+            true
         }
-
         showTab(tabs.first())
+    }
 
-        Hotwire.loadPathConfiguration(
-            context = this,
-            location = PathConfiguration.Location(
-                remoteFileUrl = AppConfig.configurationsURL
+    override fun navigatorConfigurations() =
+        tabs.map { tab ->
+            NavigatorConfiguration(
+                name = tab.name,
+                startLocation = "${AppConfig.baseURL}/${tab.path}",
+                navigatorHostId = tab.navigatorHostId,
             )
-        )
-    }
-
-    override fun navigatorConfigurations() = tabs.map { tab ->
-        NavigatorConfiguration(
-            name = tab.name,
-            startLocation = "${AppConfig.baseURL}/${tab.path}",
-            navigatorHostId = tab.navigatorHostId
-        )
-    }
+        }
 
     private fun showTab(tab: Tab) {
         tabs.forEach {

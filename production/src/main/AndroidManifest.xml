@@ -6,7 +6,9 @@
   <uses-permission android:name="android.permission.INTERNET" />
 
   <application
+    android:name=".CodeDorianApplication"
     android:background="@color/white"
+    android:backgroundTint="@color/white"
     android:allowBackup="true"
     android:icon="@mipmap/ic_launcher"
     android:label="@string/app_name"
@@ -16,10 +18,7 @@
     android:theme="@style/CodeDorian.Theme"
     tools:targetApi="31"
   >
-    <activity
-      android:name=".MainActivity"
-      android:exported="true"
-    >
+    <activity android:name=".MainActivity" android:exported="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
 
