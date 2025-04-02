@@ -38,8 +38,10 @@ class NotificationTokenViewModel {
             OutputStreamWriter(connection.outputStream).use { writer ->
                 writer.write(body.toString())
             }
+
+            connection.responseCode
         } catch (e: Exception) {
-            Log.d("CODE_DORIAN", "request failed")
+            e.printStackTrace()
         }
     }
 }
