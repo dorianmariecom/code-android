@@ -20,11 +20,17 @@ class MainActivity : HotwireActivity() {
         findViewById<View>(R.id.main).applyDefaultImeWindowInsets()
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        bottomNav.setOnItemSelectedListener { tab ->
-            val selectedTab = tabs.first { it.menuId == tab.itemId }
-            showTab(selectedTab)
-            true
+
+        bottomNav.setOnItemSelectedListener { menuItem ->
+            val selectedTab = tabs.firstOrNull { it.menuId == menuItem.itemId }
+            if (selectedTab != null) {
+                showTab(selectedTab)
+                true
+            } else {
+                false
+            }
         }
+
         showTab(tabs.first())
 
         Hotwire.loadPathConfiguration(

@@ -63,7 +63,5 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.hotwire.core)
     implementation(libs.hotwire.navigation.fragments)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    implementation("com.google.android.material:material:1.11.0")
 }

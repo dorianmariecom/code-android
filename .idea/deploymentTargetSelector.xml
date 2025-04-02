@@ -7,10 +7,7 @@
         <DropdownSelection timestamp="2025-03-31T09:29:31.251654Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId
-                pluginId="LocalEmulator"
-                identifier="path=/Users/dorianmariefr/.android/avd/Medium_Phone.avd"
-              />
+              <DeviceId pluginId="LocalEmulator" identifier="path=/Users/dorianmariefr/.android/avd/Medium_Phone.avd" />
             </handle>
           </Target>
         </DropdownSelection>
@@ -24,6 +21,14 @@
       </SelectionState>
       <SelectionState runConfigName="production">
         <option name="selectionMode" value="DROPDOWN" />
+        <DropdownSelection timestamp="2025-03-31T23:16:43.134480Z">
+          <Target type="DEFAULT_BOOT">
+            <handle>
+              <DeviceId pluginId="LocalEmulator" identifier="path=/Users/dorianmariefr/.android/avd/Medium_Phone.avd" />
+            </handle>
+          </Target>
+        </DropdownSelection>
+        <DialogSelection />
       </SelectionState>
       <SelectionState runConfigName="localhost">
         <option name="selectionMode" value="DROPDOWN" />
