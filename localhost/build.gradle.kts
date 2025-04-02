@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -17,6 +19,7 @@ android {
 
     buildFeatures {
         buildConfig = true
+        compose = true
     }
 
     signingConfigs {
@@ -40,9 +43,14 @@ android {
         create("localhost") {
             applicationIdSuffix = ".localhost"
             versionNameSuffix = "-localhost"
-            signingConfig = signingConfigs.getByName("localhost")
             buildConfigField("String", "CODE_ENV", "\"localhost\"")
             resValue("string", "app_name", "localhost")
+            signingConfig = signingConfigs.getByName("localhost")
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
     compileOptions {
@@ -63,7 +71,9 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.hotwire.core)
     implementation(libs.hotwire.navigation.fragments)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.maps.compose)
+    implementation(libs.kotlinx.serialization.json)
 }

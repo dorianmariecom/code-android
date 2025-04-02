@@ -46,6 +46,11 @@ android {
             buildConfigField("String", "CODE_ENV", "\"production\"")
             resValue("string", "app_name", "codedorian")
             signingConfig = signingConfigs.getByName("production")
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
     compileOptions {
@@ -64,12 +69,11 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-    implementation("dev.hotwire:core:1.1.3")
-    implementation("dev.hotwire:navigation-fragments:1.1.3")
-    implementation(platform("androidx.compose:compose-bom:2024.12.01"))
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("com.google.maps.android:maps-compose:6.1.0")
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
+    implementation(libs.hotwire.core)
+    implementation(libs.hotwire.navigation.fragments)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.maps.compose)
+    implementation(libs.kotlinx.serialization.json)
 }

@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -17,6 +19,7 @@ android {
 
     buildFeatures {
         buildConfig = true
+        compose = true
     }
 
     signingConfigs {
@@ -38,11 +41,16 @@ android {
         delete("release")
 
         create("ttest") {
-            applicationIdSuffix = ".ttest"
+            applicationIdSuffix = ".test"
             versionNameSuffix = "-test"
             buildConfigField("String", "CODE_ENV", "\"test\"")
-            signingConfig = signingConfigs.getByName("ttest")
             resValue("string", "app_name", "test")
+            signingConfig = signingConfigs.getByName("ttest")
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
     compileOptions {
@@ -63,7 +71,9 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.hotwire.core)
     implementation(libs.hotwire.navigation.fragments)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.maps.compose)
+    implementation(libs.kotlinx.serialization.json)
 }
