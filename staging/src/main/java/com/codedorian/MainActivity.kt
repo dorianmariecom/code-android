@@ -1,5 +1,6 @@
 package com.codedorian
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.activity.enableEdgeToEdge
@@ -26,6 +27,12 @@ class MainActivity : HotwireActivity() {
         showTab(tabs.first())
     }
 
+    override fun onStart() {
+        super.onStart()
+
+        handleDeepLink(intent)
+    }
+
     override fun navigatorConfigurations() =
         tabs.map { tab ->
             NavigatorConfiguration(
@@ -40,5 +47,15 @@ class MainActivity : HotwireActivity() {
             val view = findViewById<View>(it.navigatorHostId)
             view.visibility = if (it == tab) View.VISIBLE else View.GONE
         }
+    }
+
+    private fun handleDeepLink(intent: Intent?) {
+        intent?.let {
+            if (intent.hasExtra("path")) {
+                delegate.currentNavigator?.route("${AppConfig.baseURL}/${intent.getStringExtra("path")}")
+            }
+        }
+
+        this.intent = null
     }
 }
