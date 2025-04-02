@@ -13,7 +13,7 @@ data class Tab(
             listOf(
                 Tab(
                     name = "home",
-                    path = "/",
+                    path = "",
                     menuId = R.id.bottom_navigation_home,
                     navigatorHostId = R.id.home_navigator_host,
                 ),

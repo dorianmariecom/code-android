@@ -25,6 +25,10 @@ class NotificationTokenViewModel {
                 "Accept",
                 "application/json"
             )
+            connection.setRequestProperty(
+                "X-CSRF-Token",
+                AppConfig.csrfToken
+            )
 
             CookieManager.getInstance().getCookie(AppConfig.baseURL)?.let {
                 connection.setRequestProperty("Cookie", it)
@@ -38,8 +42,10 @@ class NotificationTokenViewModel {
             OutputStreamWriter(connection.outputStream).use { writer ->
                 writer.write(body.toString())
             }
+
+            connection.responseCode
         } catch (e: Exception) {
-            Log.d("CODE_DORIAN", "request failed")
+            e.printStackTrace()
         }
     }
 }

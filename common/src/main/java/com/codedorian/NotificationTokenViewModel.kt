@@ -25,6 +25,10 @@ class NotificationTokenViewModel {
                 "Accept",
                 "application/json"
             )
+            connection.setRequestProperty(
+                "X-CSRF-Token",
+                AppConfig.csrfToken
+            )
 
             CookieManager.getInstance().getCookie(AppConfig.baseURL)?.let {
                 connection.setRequestProperty("Cookie", it)
