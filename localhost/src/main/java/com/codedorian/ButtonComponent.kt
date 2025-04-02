@@ -3,7 +3,6 @@ package com.codedorian
 import android.view.Gravity
 import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -80,12 +79,12 @@ private fun ToolbarButton(
     onClick: () -> Unit,
 ) {
     Button(
-        modifier = Modifier.padding(all = 5.dp),
+        modifier = Modifier.padding(horizontal = 8.dp),
         colors =
             ButtonDefaults
                 .buttonColors(
-                    containerColor = Color.White,
-                    contentColor = Color.Black,
+                    containerColor = Color.Black,
+                    contentColor = Color.White,
                 ),
         onClick = onClick,
     ) {
