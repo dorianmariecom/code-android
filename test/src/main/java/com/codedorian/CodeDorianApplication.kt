@@ -33,6 +33,10 @@ class CodeDorianApplication : Application() {
                 "notification-token",
                 ::NotificationTokenComponent,
             ),
+            BridgeComponentFactory(
+                "csrf-token",
+                ::CsrfTokenComponent,
+            ),
         )
 
         Hotwire.config.jsonConverter = KotlinXJsonConverter()

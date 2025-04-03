@@ -1,6 +1,5 @@
 package com.codedorian
 
-import android.util.Log
 import android.webkit.CookieManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -35,8 +34,10 @@ class NotificationTokenViewModel {
             }
 
             val body = JSONObject().apply {
-                put("token", token)
-                put("platform", "android")
+                put("device", JSONObject().apply {
+                    put("token", token)
+                    put("platform", "android")
+                })
             }
 
             OutputStreamWriter(connection.outputStream).use { writer ->

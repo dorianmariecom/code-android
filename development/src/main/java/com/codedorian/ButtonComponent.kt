@@ -27,6 +27,12 @@ class ButtonComponent(
     name: String,
     private val bridgeDelegate: BridgeDelegate<HotwireDestination>,
 ) : BridgeComponent<HotwireDestination>(name, bridgeDelegate) {
+    @Serializable
+    data class MessageData(
+        @SerialName("title") val title: String,
+        @SerialName("image") val image: String,
+    )
+
     private val buttonId = 1
     private val fragment: HotwireFragment
         get() = bridgeDelegate.destination.fragment as HotwireFragment
@@ -70,38 +76,33 @@ class ButtonComponent(
         val button = toolbar?.findViewById<ComposeView>(buttonId)
         toolbar?.removeView(button)
     }
-}
 
-@Composable
-private fun ToolbarButton(
-    title: String,
-    image: String,
-    onClick: () -> Unit,
-) {
-    Button(
-        modifier = Modifier.padding(horizontal = 8.dp),
-        colors =
-            ButtonDefaults
-                .buttonColors(
-                    containerColor = Color.Black,
-                    contentColor = Color.White,
-                ),
-        onClick = onClick,
+    @Composable
+    private fun ToolbarButton(
+        title: String,
+        image: String,
+        onClick: () -> Unit,
     ) {
-        if (image.isEmpty()) {
-            Text(title)
-        } else {
-            Text(
-                text = image,
-                fontFamily = FontFamily(Font(R.font.material_symbols)),
-                style = TextStyle(fontFeatureSettings = "liga"),
-            )
+        Button(
+            modifier = Modifier.padding(horizontal = 8.dp),
+            colors =
+                ButtonDefaults
+                    .buttonColors(
+                        containerColor = Color.Black,
+                        contentColor = Color.White,
+                    ),
+            onClick = onClick,
+        ) {
+            if (image.isEmpty()) {
+                Text(title)
+            } else {
+                Text(
+                    text = image,
+                    fontFamily = FontFamily(Font(R.font.material_symbols)),
+                    style = TextStyle(fontFeatureSettings = "liga"),
+                )
+            }
         }
     }
-}
 
-@Serializable
-data class MessageData(
-    @SerialName("title") val title: String,
-    @SerialName("image") val image: String,
-)
+}
