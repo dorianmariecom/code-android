@@ -35,17 +35,14 @@ class MainActivity : HotwireActivity() {
         handleDeepLink(intent)
     }
 
-    override fun navigatorConfigurations(): List<NavigatorConfiguration> {
-        val configs = Tab.all.map { tab ->
+    override fun navigatorConfigurations(): List<NavigatorConfiguration> =
+        Tab.all.map { tab ->
             NavigatorConfiguration(
                 name = tab.title,
                 startLocation = "${AppConfig.baseURL}/${tab.path}",
                 navigatorHostId = tab.navigatorHostId!!
             )
         }
-
-        return configs
-    }
 
     private fun showTab(selectedTab: Tab) {
         Tab.all.forEach { tab ->
