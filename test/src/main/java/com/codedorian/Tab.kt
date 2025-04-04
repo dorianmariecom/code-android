@@ -1,46 +1,49 @@
 package com.codedorian
 
 import androidx.annotation.IdRes
+import androidx.fragment.app.FragmentContainerView
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Tab(
-    val name: String,
-    val path: String,
-    @IdRes val menuId: Int,
-    @IdRes val navigatorHostId: Int,
-) {
+    @SerialName("title") val title: String,
+    @SerialName("image") val image: String,
+    @SerialName("path") val path: String,
+    var itemId: Int? = null,
+    var navigatorHostId: Int? = null
+) : Comparable<Tab> {
     companion object {
-        val all =
+        var all =
             listOf(
                 Tab(
-                    name = "home",
+                    title = "loading…",
                     path = "",
-                    menuId = R.id.bottom_navigation_home,
-                    navigatorHostId = R.id.home_navigator_host,
-                ),
-                Tab(
-                    name = "programs",
-                    path = "programs",
-                    menuId = R.id.bottom_navigation_programs,
-                    navigatorHostId = R.id.programs_navigator_host,
-                ),
-                Tab(
-                    name = "messages",
-                    path = "messages",
-                    menuId = R.id.bottom_navigation_messages,
-                    navigatorHostId = R.id.messages_navigator_host,
-                ),
-                Tab(
-                    name = "account",
-                    path = "account",
-                    menuId = R.id.bottom_navigation_account,
-                    navigatorHostId = R.id.account_navigator_host,
-                ),
-                Tab(
-                    name = "more",
-                    path = "more",
-                    menuId = R.id.bottom_navigation_more,
-                    navigatorHostId = R.id.more_navigator_host,
+                    image = "circle",
+                    itemId = R.id.bottom_navigation_loading,
+                    navigatorHostId = R.id.loading_navigator_host,
                 ),
             )
+
+        fun first(): Tab = all.first()
+        fun last(): Tab = all.last()
+        fun default(): Tab = all.first()
+    }
+
+    override fun compareTo(other: Tab): Int =
+        compareValuesBy(this, other, { it.title }, { it.image }, { it.path })
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Tab) return false
+
+        return title == other.title && image == other.image &&  path == other.path
+    }
+
+    override fun hashCode(): Int {
+        var result = title.hashCode()
+        result = 31 * result + image.hashCode()
+        result = 31 * result + path.hashCode()
+        return result
     }
 }
