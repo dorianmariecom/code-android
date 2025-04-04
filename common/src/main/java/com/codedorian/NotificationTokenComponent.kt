@@ -1,5 +1,6 @@
 package com.codedorian
 
+import android.util.Log.d
 import com.google.firebase.FirebaseApp
 import dev.hotwire.core.bridge.BridgeComponent
 import dev.hotwire.core.bridge.BridgeDelegate

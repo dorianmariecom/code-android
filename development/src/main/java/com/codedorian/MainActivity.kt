@@ -1,8 +1,8 @@
 package com.codedorian
 
+import android.util.Log.d
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log.d
 import android.view.Menu
 import android.view.Menu.*
 import android.view.View
@@ -67,6 +67,7 @@ class MainActivity : HotwireActivity() {
     }
 
     fun onTabsChanged() {
+
         val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         val main = findViewById<ViewGroup>(R.id.main)
 
@@ -86,9 +87,9 @@ class MainActivity : HotwireActivity() {
 
             val navigatorHostContainer = FragmentContainerView(this).apply {
                 id = containerViewId
-                layoutParams = LayoutParams(MATCH_PARENT, MATCH_PARENT).apply {
+                layoutParams = LayoutParams(MATCH_PARENT, 0).apply {
                     topToTop = PARENT_ID
-                    bottomToBottom = PARENT_ID
+                    bottomToTop = R.id.bottom_navigation
                     startToStart = PARENT_ID
                     endToEnd = PARENT_ID
                 }
@@ -118,3 +119,4 @@ class MainActivity : HotwireActivity() {
         showTab(Tab.default())
     }
 }
+

@@ -1,8 +1,7 @@
 package com.codedorian
 
-import android.content.Intent
-import android.util.Log
 import android.util.Log.d
+import android.content.Intent
 import androidx.lifecycle.createSavedStateHandle
 import dev.hotwire.core.bridge.BridgeComponent
 import dev.hotwire.core.bridge.BridgeDelegate

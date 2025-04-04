@@ -1,5 +1,6 @@
 package com.codedorian
 
+import android.util.Log.d
 import androidx.annotation.IdRes
 import androidx.fragment.app.FragmentContainerView
 import kotlinx.serialization.SerialName
