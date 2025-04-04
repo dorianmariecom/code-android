@@ -67,7 +67,6 @@ class MainActivity : HotwireActivity() {
     }
 
     fun onTabsChanged() {
-
         val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         val main = findViewById<ViewGroup>(R.id.main)
 
