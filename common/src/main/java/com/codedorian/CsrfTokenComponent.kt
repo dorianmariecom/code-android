@@ -1,6 +1,5 @@
 package com.codedorian
 
-import com.google.firebase.FirebaseApp
 import dev.hotwire.core.bridge.BridgeComponent
 import dev.hotwire.core.bridge.BridgeDelegate
 import dev.hotwire.core.bridge.Message
@@ -17,9 +16,6 @@ class CsrfTokenComponent(
     data class MessageData(
         @SerialName("csrf_token") val csrfToken: String,
     )
-
-    private val fragment: WebFragment
-        get() = bridgeDelegate.destination.fragment as WebFragment
 
     override fun onReceive(message: Message) {
         if (message.event == "connect") {
