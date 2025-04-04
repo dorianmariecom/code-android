@@ -28,7 +28,10 @@ class CodeDorianApplication : Application() {
         )
 
         Hotwire.registerBridgeComponents(
-            BridgeComponentFactory("button", ::ButtonComponent),
+            BridgeComponentFactory(
+                "button",
+                ::ButtonComponent
+            ),
             BridgeComponentFactory(
                 "notification-token",
                 ::NotificationTokenComponent,
@@ -36,6 +39,10 @@ class CodeDorianApplication : Application() {
             BridgeComponentFactory(
                 "csrf-token",
                 ::CsrfTokenComponent,
+            ),
+            BridgeComponentFactory(
+                "tab-bar",
+                ::TabBarComponent,
             ),
         )
 
