@@ -1,7 +1,5 @@
 package com.codedorian
 
-import android.util.Log.d
-
 object AppConfig {
     val environment: String = BuildConfig.CODE_ENV
 

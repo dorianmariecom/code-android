@@ -1,6 +1,5 @@
 package com.codedorian
 
-import android.util.Log.d
 import dev.hotwire.core.bridge.BridgeComponent
 import dev.hotwire.core.bridge.BridgeDelegate
 import dev.hotwire.core.bridge.Message
@@ -10,9 +9,8 @@ import kotlinx.serialization.Serializable
 
 class CsrfTokenComponent(
     name: String,
-    private val bridgeDelegate: BridgeDelegate<HotwireDestination>
+    private val bridgeDelegate: BridgeDelegate<HotwireDestination>,
 ) : BridgeComponent<HotwireDestination>(name, bridgeDelegate) {
-
     @Serializable
     data class MessageData(
         @SerialName("csrf_token") val csrfToken: String,

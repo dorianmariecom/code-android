@@ -1,6 +1,5 @@
 package com.codedorian
 
-import android.util.Log.d
 import android.Manifest
 import android.os.Build
 import androidx.activity.result.contract.ActivityResultContracts

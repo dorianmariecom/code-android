@@ -1,6 +1,5 @@
 package com.codedorian
 
-import android.util.Log.d
 import android.app.Application
 import com.google.firebase.FirebaseApp
 import dev.hotwire.core.bridge.BridgeComponentFactory
@@ -31,7 +30,7 @@ class CodeDorianApplication : Application() {
         Hotwire.registerBridgeComponents(
             BridgeComponentFactory(
                 "button",
-                ::ButtonComponent
+                ::ButtonComponent,
             ),
             BridgeComponentFactory(
                 "notification-token",

@@ -7,25 +7,25 @@
   android:layout_height="match_parent"
 >
   <androidx.fragment.app.FragmentContainerView
-      android:id="@+id/loading_navigator_host"
-      android:name="dev.hotwire.navigation.navigator.NavigatorHost"
-      android:layout_width="match_parent"
-      android:layout_height="0dp"
-      app:defaultNavHost="false"
-      app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
-      app:layout_constraintTop_toTopOf="parent"
-      />
+    android:id="@+id/loading_navigator_host"
+    android:name="dev.hotwire.navigation.navigator.NavigatorHost"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    app:defaultNavHost="false"
+    app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
+    app:layout_constraintTop_toTopOf="parent"
+  />
   <com.google.android.material.bottomnavigation.BottomNavigationView
-      android:id="@+id/bottom_navigation"
-      android:layout_width="0dp"
-      android:layout_height="wrap_content"
-      android:background="@color/white"
-      app:itemIconTint="@color/black"
-      app:itemTextColor="@color/black"
-      app:labelVisibilityMode="labeled"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:menu="@menu/bottom_navigation_menu"
-      />
+    android:id="@+id/bottom_navigation"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    app:itemIconTint="@color/black"
+    app:itemTextColor="@color/black"
+    app:labelVisibilityMode="labeled"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:menu="@menu/bottom_navigation_menu"
+  />
 </androidx.constraintlayout.widget.ConstraintLayout>

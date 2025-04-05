@@ -1,6 +1,5 @@
 package com.codedorian
 
-import android.util.Log.d
 import android.webkit.CookieManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -10,46 +9,49 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 class NotificationTokenViewModel {
-    suspend fun registerToken(token: String) = withContext(Dispatchers.IO) {
-        try {
-            val url = URL(AppConfig.devicesURL)
+    suspend fun registerToken(token: String) =
+        withContext(Dispatchers.IO) {
+            try {
+                val url = URL(AppConfig.devicesURL)
 
-            val connection = url.openConnection() as HttpURLConnection
+                val connection = url.openConnection() as HttpURLConnection
 
-            connection.requestMethod = "POST"
-            connection.setRequestProperty(
-                "Content-Type",
-                "application/json"
-            )
-            connection.setRequestProperty(
-                "Accept",
-                "application/json"
-            )
-            connection.setRequestProperty(
-                "X-CSRF-Token",
-                AppConfig.csrfToken
-            )
+                connection.requestMethod = "POST"
+                connection.setRequestProperty(
+                    "Content-Type",
+                    "application/json",
+                )
+                connection.setRequestProperty(
+                    "Accept",
+                    "application/json",
+                )
+                connection.setRequestProperty(
+                    "X-CSRF-Token",
+                    AppConfig.csrfToken,
+                )
 
-            CookieManager.getInstance().getCookie(AppConfig.baseURL)?.let {
-                connection.setRequestProperty("Cookie", it)
+                CookieManager.getInstance().getCookie(AppConfig.baseURL)?.let {
+                    connection.setRequestProperty("Cookie", it)
+                }
+
+                val body =
+                    JSONObject().apply {
+                        put(
+                            "device",
+                            JSONObject().apply {
+                                put("token", token)
+                                put("platform", "android")
+                            },
+                        )
+                    }
+
+                OutputStreamWriter(connection.outputStream).use { writer ->
+                    writer.write(body.toString())
+                }
+
+                connection.responseCode
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-
-            val body = JSONObject().apply {
-                put("device", JSONObject().apply {
-                    put("token", token)
-                    put("platform", "android")
-                })
-            }
-
-            OutputStreamWriter(connection.outputStream).use { writer ->
-                writer.write(body.toString())
-            }
-
-            connection.responseCode
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
-    }
 }
-
-
