@@ -14,6 +14,7 @@ kotlinx-serialization-json = "1.8.0"
 google-services = "4.4.2"
 firebase-bom = "33.12.0"
 firebaseMessagingKtx = "24.1.1"
+keyboardvisibilityevent = "3.0.0-RC3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -29,6 +30,7 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
 firebase-messaging-ktx = { group = "com.google.firebase", name = "firebase-messaging-ktx", version.ref = "firebaseMessagingKtx" }
+keyboard-visibility-event = { group = "net.yslibrary.keyboardvisibilityevent", name = "keyboardvisibilityevent", version.ref = "keyboardvisibilityevent" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

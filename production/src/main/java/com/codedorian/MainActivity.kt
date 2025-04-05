@@ -15,6 +15,7 @@ import dev.hotwire.navigation.activities.HotwireActivity
 import dev.hotwire.navigation.navigator.NavigatorConfiguration
 import dev.hotwire.navigation.navigator.NavigatorHost
 import dev.hotwire.navigation.util.applyDefaultImeWindowInsets
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 
 class MainActivity : HotwireActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
