@@ -1,0 +1,21 @@
+#!/bin/bash
+
+set -e
+
+./gradlew bundleTtest
+./gradlew bundleLocalhost
+./gradlew bundleDevelopment
+./gradlew bundleStaging
+./gradlew bundleProduction
+
+mkdir -p tmp
+
+cp \
+  development/build/outputs/bundle/development/development-development.aab \
+  localhost/build/outputs/bundle/localhost/localhost-localhost.aab \
+  production/build/outputs/bundle/production/production-production.aab \
+  staging/build/outputs/bundle/staging/staging-staging.aab \
+  test/build/outputs/bundle/ttest/test-ttest.aab \
+  tmp/
+
+open tmp
