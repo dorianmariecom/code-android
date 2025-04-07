@@ -8,8 +8,8 @@ data class Tab(
     @SerialName("title") val title: String,
     @SerialName("image") val image: String,
     @SerialName("path") val path: String,
+    @SerialName("default") val default: Boolean,
     var itemId: Int? = null,
-    var navigatorHostId: Int? = null,
 ) : Comparable<Tab> {
     companion object {
         var all =
@@ -19,16 +19,14 @@ data class Tab(
                     path = "",
                     image = "circle",
                     itemId = R.id.bottom_navigation_loading,
-                    navigatorHostId = R.id.loading_navigator_host,
+                    default = true
                 ),
             )
 
-        fun first(): Tab = all.first()
-
-        fun last(): Tab = all.last()
-
-        fun default(): Tab = all.first()
+        val default: Tab get() = all.find { it.default } ?: all.first()
     }
+
+    val url: String get() = "${AppConfig.baseURL}/${path}"
 
     override fun compareTo(other: Tab): Int = compareValuesBy(this, other, { it.title }, { it.image }, { it.path })
 

@@ -25,9 +25,9 @@ class TabBarComponent(
             if (newTabs == allTabs) {
                 return
             } else {
-                Tab.all = newTabs
-                val activity = bridgeDelegate.destination.fragment.activity as? MainActivity ?: return
-                activity.onTabsChanged()
+                val fragment = bridgeDelegate.destination.fragment
+                val activity = fragment.activity as? MainActivity ?: return
+                activity.tabsChanged(newTabs)
             }
         }
     }
