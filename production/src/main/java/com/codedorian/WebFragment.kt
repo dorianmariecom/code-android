@@ -34,6 +34,8 @@ class WebFragment : HotwireWebFragment() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val permission = Manifest.permission.POST_NOTIFICATIONS
             requestPermissionLauncher.launch(permission)
+        } else {
+            registerForTokenChanges()
         }
     }
 
