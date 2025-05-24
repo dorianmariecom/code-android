@@ -8,9 +8,14 @@ import androidx.constraintlayout.widget.ConstraintLayout.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dev.hotwire.navigation.activities.HotwireActivity
 import dev.hotwire.navigation.navigator.NavigatorConfiguration
+import dev.hotwire.navigation.tabs.HotwireBottomNavigationController
+import dev.hotwire.navigation.tabs.HotwireBottomTab
+import dev.hotwire.navigation.tabs.navigatorConfigurations
 import dev.hotwire.navigation.util.applyDefaultImeWindowInsets
 
 class MainActivity : HotwireActivity() {
+    private lateinit var bottomNavigationController: HotwireBottomNavigationController
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -44,38 +49,17 @@ class MainActivity : HotwireActivity() {
     }
 
     fun tabsChanged(tabs: List<Tab>) {
+        Tab.all = tabs
+
         val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
         bottomNavigation.menu.clear()
 
-        tabs.forEach { tab ->
-            val itemId = generateViewId()
-            tab.itemId = itemId
-
-            val item = bottomNavigation.menu.add(NONE, itemId, NONE, tab.title)
-            val icon = resources.getIdentifier("material_${tab.image}", "drawable", packageName)
-            item.setIcon(icon)
-        }
-
-        bottomNavigation.setOnItemSelectedListener { menuItem ->
-            val selectedTab = tabs.firstOrNull { tab -> tab.itemId == menuItem.itemId }
-            selectedTab?.let { tab ->
-                route(tab.path)
-                true
-            } ?: false
-        }
-
-        Tab.all = tabs
+        bottomNavigationController = HotwireBottomNavigationController(this, bottomNavigation)
+        bottomNavigationController?.load(Tab.toTabs(resources, packageName))
     }
 
-    override fun navigatorConfigurations(): List<NavigatorConfiguration> =
-        listOf(
-            NavigatorConfiguration(
-                name = "main",
-                startLocation = Tab.default.url,
-                navigatorHostId = R.id.main_navigator_host,
-            ),
-        )
+    override fun navigatorConfigurations() = Tab.toTabs(resources, packageName).navigatorConfigurations
 
     private fun route(path: String?) {
         delegate.currentNavigator?.route("${AppConfig.baseURL}/$path")

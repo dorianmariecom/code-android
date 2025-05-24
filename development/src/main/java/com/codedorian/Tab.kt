@@ -1,5 +1,8 @@
 package com.codedorian
 
+import android.content.res.Resources
+import dev.hotwire.navigation.navigator.NavigatorConfiguration
+import dev.hotwire.navigation.tabs.HotwireBottomTab
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -24,6 +27,22 @@ data class Tab(
             )
 
         val default: Tab get() = all.find { it.default } ?: all.first()
+
+        fun toTabs(resources: Resources, packageName: String): List<HotwireBottomTab> {
+            return all.mapIndexed { index, tab ->
+                val navigatorHostId = resources.getIdentifier("navigator_host_${index}", "id", packageName)
+                android.util.Log.d("CODE_DORIAN", "Tab '${tab.title}' uses navigatorHostId: $navigatorHostId")
+                HotwireBottomTab(
+                    title = tab.title,
+                    iconResId = resources.getIdentifier("material_${tab.image}", "drawable", packageName),
+                    configuration = NavigatorConfiguration(
+                        name = tab.title,
+                        navigatorHostId = navigatorHostId,
+                        startLocation = "${AppConfig.baseURL}/${tab.path}"
+                    )
+                )
+            }
+        }
     }
 
     val url: String get() = "${AppConfig.baseURL}/$path"
