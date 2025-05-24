@@ -68,18 +68,16 @@ class MainActivity : HotwireActivity() {
         Tab.all = tabs
     }
 
-    override fun navigatorConfigurations(): List<NavigatorConfiguration> {
-        return listOf(
+    override fun navigatorConfigurations(): List<NavigatorConfiguration> =
+        listOf(
             NavigatorConfiguration(
                 name = "main",
                 startLocation = Tab.default.url,
                 navigatorHostId = R.id.main_navigator_host,
-            )
+            ),
         )
 
-    }
-
     private fun route(path: String?) {
-        delegate.currentNavigator?.route("${AppConfig.baseURL}/${path}")
+        delegate.currentNavigator?.route("${AppConfig.baseURL}/$path")
     }
 }

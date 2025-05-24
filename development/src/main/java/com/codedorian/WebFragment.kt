@@ -15,6 +15,7 @@ import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 @HotwireDestinationDeepLink("hotwire://fragment/web")
 class WebFragment : HotwireWebFragment() {
     private val viewModel = NotificationTokenViewModel()
+
     override fun onStart() {
         super.onStart()
 

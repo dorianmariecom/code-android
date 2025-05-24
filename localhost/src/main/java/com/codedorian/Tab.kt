@@ -19,14 +19,14 @@ data class Tab(
                     path = "",
                     image = "circle",
                     itemId = R.id.bottom_navigation_loading,
-                    default = true
+                    default = true,
                 ),
             )
 
         val default: Tab get() = all.find { it.default } ?: all.first()
     }
 
-    val url: String get() = "${AppConfig.baseURL}/${path}"
+    val url: String get() = "${AppConfig.baseURL}/$path"
 
     override fun compareTo(other: Tab): Int = compareValuesBy(this, other, { it.title }, { it.image }, { it.path })
 
