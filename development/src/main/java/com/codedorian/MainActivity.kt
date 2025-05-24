@@ -15,13 +15,27 @@ import dev.hotwire.navigation.util.applyDefaultImeWindowInsets
 
 class MainActivity : HotwireActivity() {
     private lateinit var bottomNavigationController: HotwireBottomNavigationController
+    private var hotwireTabs: List<HotwireBottomTab> = listOf(
+        HotwireBottomTab(
+            title = "loading…",
+            iconResId = R.drawable.material_circle,
+            configuration = NavigatorConfiguration(
+                name = "loading…",
+                navigatorHostId = R.id.navigator_host_0,
+                startLocation = AppConfig.baseURL
+            )
+        )
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
         findViewById<View>(R.id.main).applyDefaultImeWindowInsets()
-        tabsChanged(Tab.all)
+        val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNavigation.menu.clear()
+        bottomNavigationController = HotwireBottomNavigationController(this, bottomNavigation)
+        bottomNavigationController.load(hotwireTabs)
+        setContentView(R.layout.activity_main)
     }
 
     override fun onStart() {
@@ -48,20 +62,39 @@ class MainActivity : HotwireActivity() {
         this.intent = null
     }
 
-    fun tabsChanged(tabs: List<Tab>) {
-        Tab.all = tabs
-
+    fun tabsChanged() {
         val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
         bottomNavigation.menu.clear()
 
+        hotwireTabs = Tab.all.mapIndexed { index, tab ->
+            HotwireBottomTab(
+                title = tab.title,
+                iconResId = resources.getIdentifier(
+                    "material_${tab.image}",
+                    "drawable",
+                    packageName
+                ),
+                configuration = NavigatorConfiguration(
+                    name = tab.title,
+                    navigatorHostId = resources.getIdentifier(
+                        "navigator_host_${index}",
+                        "id",
+                        packageName
+                    ),
+                    startLocation = tab.url
+                )
+            )
+        }
+
+
         bottomNavigationController = HotwireBottomNavigationController(this, bottomNavigation)
-        bottomNavigationController?.load(Tab.toTabs(resources, packageName))
+        bottomNavigationController.load(hotwireTabs)
     }
 
-    override fun navigatorConfigurations() = Tab.toTabs(resources, packageName).navigatorConfigurations
+    override fun navigatorConfigurations() = hotwireTabs.navigatorConfigurations
 
     private fun route(path: String?) {
-        delegate.currentNavigator?.route("${AppConfig.baseURL}/$path")
+        delegate.currentNavigator?.route("${ApwpConfig.baseURL}/$path")
     }
 }

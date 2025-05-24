@@ -13,6 +13,7 @@ data class Tab(
     @SerialName("path") val path: String,
     @SerialName("default") val default: Boolean,
     var itemId: Int? = null,
+    var navigatorHostId: Int? = null,
 ) : Comparable<Tab> {
     companion object {
         var all =
@@ -22,27 +23,12 @@ data class Tab(
                     path = "",
                     image = "circle",
                     itemId = R.id.bottom_navigation_loading,
-                    default = true,
+                    navigatorHostId = R.id.navigator_host_0,
+                    default = true
                 ),
             )
 
         val default: Tab get() = all.find { it.default } ?: all.first()
-
-        fun toTabs(resources: Resources, packageName: String): List<HotwireBottomTab> {
-            return all.mapIndexed { index, tab ->
-                val navigatorHostId = resources.getIdentifier("navigator_host_${index}", "id", packageName)
-                android.util.Log.d("CODE_DORIAN", "Tab '${tab.title}' uses navigatorHostId: $navigatorHostId")
-                HotwireBottomTab(
-                    title = tab.title,
-                    iconResId = resources.getIdentifier("material_${tab.image}", "drawable", packageName),
-                    configuration = NavigatorConfiguration(
-                        name = tab.title,
-                        navigatorHostId = navigatorHostId,
-                        startLocation = "${AppConfig.baseURL}/${tab.path}"
-                    )
-                )
-            }
-        }
     }
 
     val url: String get() = "${AppConfig.baseURL}/$path"
