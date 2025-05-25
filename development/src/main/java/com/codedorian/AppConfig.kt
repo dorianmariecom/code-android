@@ -1,9 +1,5 @@
 package com.codedorian
 
-import android.content.res.Resources
-import com.codedorian.TabBarComponent.MessageTab
-import dev.hotwire.navigation.tabs.HotwireBottomTab
-
 object AppConfig {
     val environment: String = BuildConfig.CODE_ENV
 
@@ -20,4 +16,5 @@ object AppConfig {
     val configurationsURL: String = "$baseDomain/configurations/android_v1.json"
     val devicesURL: String = "$baseDomain/devices"
     var csrfToken: String? = null
+    var tabs: List<Tab> = emptyList()
 }

@@ -1,18 +1,27 @@
 package com.codedorian
 
-import dev.hotwire.navigation.navigator.NavigatorConfiguration
-import dev.hotwire.navigation.tabs.HotwireBottomTab
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-private val loadingTab = HotwireBottomTab(
-    title = "loading…",
-    iconResId = R.drawable.material_circle,
-    configuration = NavigatorConfiguration(
-        name = "loading…",
-        navigatorHostId = R.id.navigator_host_loading,
-        startLocation = AppConfig.baseURL
-    )
-)
+@Serializable
+data class Tab(
+    @SerialName("title") val title: String,
+    @SerialName("image") val image: String,
+    @SerialName("path") val path: String,
+) : Comparable<Tab> {
+    override fun compareTo(other: Tab): Int = compareValuesBy(this, other, { it.title }, { it.image }, { it.path })
 
-var tabs = listOf(
-    loadingTab,
-)
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Tab) return false
+
+        return title == other.title && image == other.image && path == other.path
+    }
+
+    override fun hashCode(): Int {
+        var result = title.hashCode()
+        result = 31 * result + image.hashCode()
+        result = 31 * result + path.hashCode()
+        return result
+    }
+}

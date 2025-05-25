@@ -5,15 +5,23 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent"
 >
-  <androidx.fragment.app.FragmentContainerView
-    android:id="@+id/navigator_host_loading"
-    android:name="dev.hotwire.navigation.navigator.NavigatorHost"
-    android:layout_width="match_parent"
-    android:layout_height="0dp"
-    app:defaultNavHost="false"
-    app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
-    app:layout_constraintTop_toTopOf="parent"
-  />
+  <FrameLayout
+      android:id="@+id/navigator_container"
+      android:layout_width="match_parent"
+      android:layout_height="0dp"
+      app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
+      app:layout_constraintTop_toTopOf="parent"
+      >
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/navigator_host_loading"
+        android:name="dev.hotwire.navigation.navigator.NavigatorHost"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:defaultNavHost="false"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+  </FrameLayout>
   <com.google.android.material.bottomnavigation.BottomNavigationView
     android:id="@+id/bottom_navigation"
     android:layout_width="0dp"
