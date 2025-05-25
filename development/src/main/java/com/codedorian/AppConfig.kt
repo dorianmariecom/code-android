@@ -1,5 +1,9 @@
 package com.codedorian
 
+import android.content.res.Resources
+import com.codedorian.TabBarComponent.MessageTab
+import dev.hotwire.navigation.tabs.HotwireBottomTab
+
 object AppConfig {
     val environment: String = BuildConfig.CODE_ENV
 
