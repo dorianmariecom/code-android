@@ -25,6 +25,7 @@ class CodeDorianApplication : Application() {
 
         Hotwire.registerFragmentDestinations(
             WebFragment::class,
+            WebModalSheetFragment::class,
         )
 
         Hotwire.registerBridgeComponents(
@@ -44,8 +45,14 @@ class CodeDorianApplication : Application() {
                 "tab-bar",
                 ::TabBarComponent,
             ),
+            BridgeComponentFactory(
+                "confirm",
+                ::ConfirmComponent,
+            ),
         )
 
         Hotwire.config.jsonConverter = KotlinXJsonConverter()
+        Hotwire.config.webViewDebuggingEnabled = true
+        Hotwire.config.debugLoggingEnabled = true
     }
 }

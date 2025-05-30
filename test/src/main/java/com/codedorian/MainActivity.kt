@@ -20,27 +20,30 @@ class MainActivity : HotwireActivity() {
     private var hotwireNavigatorConfigurations: MutableList<NavigatorConfiguration> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        AppConfig.tabs = listOf(
-            Tab(
-                title = "loading…",
-                image = "circle",
-                path = ""
+        AppConfig.tabs =
+            listOf(
+                Tab(
+                    title = "loading…",
+                    image = "circle",
+                    path = "",
+                ),
             )
-        )
 
-        val navigatorConfigurationLoading = NavigatorConfiguration(
-            name = "loading…",
-            navigatorHostId = R.id.navigator_host_loading,
-            startLocation = AppConfig.baseURL
-        )
-
-        hotwireTabs = listOf(
-            HotwireBottomTab(
-                title = "loading…",
-                iconResId = R.drawable.material_circle,
-                configuration = navigatorConfigurationLoading
+        val navigatorConfigurationLoading =
+            NavigatorConfiguration(
+                name = "loading…",
+                navigatorHostId = R.id.navigator_host_loading,
+                startLocation = AppConfig.baseURL,
             )
-        )
+
+        hotwireTabs =
+            listOf(
+                HotwireBottomTab(
+                    title = "loading…",
+                    iconResId = R.drawable.material_circle,
+                    configuration = navigatorConfigurationLoading,
+                ),
+            )
 
         hotwireNavigatorConfigurations.add(navigatorConfigurationLoading)
 
@@ -80,38 +83,44 @@ class MainActivity : HotwireActivity() {
         val navigatorContainer = findViewById<FrameLayout>(R.id.navigator_container)
         val containerIds = tabs.map { View.generateViewId() }
         val navigatorHosts = tabs.map { NavigatorHost() }
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
-        hotwireTabs = tabs.mapIndexed { index, tab ->
-            val navigatorConfiguration = NavigatorConfiguration(
-                name = tab.title,
-                navigatorHostId = containerIds[index],
-                startLocation = "${AppConfig.baseURL}${tab.path}"
-            )
+        bottomNavigationView.menu.clear()
 
-            hotwireNavigatorConfigurations.add(navigatorConfiguration)
+        hotwireTabs =
+            tabs.mapIndexed { index, tab ->
+                val navigatorConfiguration =
+                    NavigatorConfiguration(
+                        name = tab.title,
+                        navigatorHostId = containerIds[index],
+                        startLocation = "${AppConfig.baseURL}${tab.path}",
+                    )
 
-            HotwireBottomTab(
-                title = tab.title,
-                iconResId = resources.getIdentifier("material_${tab.image}", "drawable", packageName),
-                configuration = navigatorConfiguration
-            )
-        }
+                hotwireNavigatorConfigurations.add(navigatorConfiguration)
+
+                HotwireBottomTab(
+                    title = tab.title,
+                    iconResId = resources.getIdentifier("material_${tab.image}", "drawable", packageName),
+                    configuration = navigatorConfiguration,
+                )
+            }
 
         tabs.forEachIndexed { index, _ ->
-            val containerView = FragmentContainerView(this).apply {
-                id = containerIds[index]
-                layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-            }
+            val containerView =
+                FragmentContainerView(this).apply {
+                    id = containerIds[index]
+                    layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                }
             navigatorContainer.addView(containerView)
         }
 
         tabs.forEachIndexed { index, _ ->
-            supportFragmentManager.beginTransaction()
+            supportFragmentManager
+                .beginTransaction()
                 .add(containerIds[index], navigatorHosts[index], "tab_$index")
                 .commitNow()
         }
 
-        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationController = HotwireBottomNavigationController(this, bottomNavigationView)
         bottomNavigationController.load(hotwireTabs)
     }

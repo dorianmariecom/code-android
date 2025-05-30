@@ -34,8 +34,6 @@ class ButtonComponent(
     )
 
     private val buttonId = 1
-    private val fragment: HotwireFragment
-        get() = bridgeDelegate.destination.fragment as HotwireFragment
 
     override fun onReceive(message: Message) {
         if (message.event == "connect") {
@@ -47,6 +45,7 @@ class ButtonComponent(
     }
 
     private fun addButton(message: Message) {
+        val fragment = bridgeDelegate.destination.fragment as? WebFragment ?: return
         val data = message.data<MessageData>() ?: return
 
         val composeView =
@@ -72,6 +71,7 @@ class ButtonComponent(
     }
 
     private fun removeButton() {
+        val fragment = bridgeDelegate.destination.fragment as? HotwireFragment ?: return
         val toolbar = fragment.toolbarForNavigation()
         val button = toolbar?.findViewById<ComposeView>(buttonId)
         toolbar?.removeView(button)

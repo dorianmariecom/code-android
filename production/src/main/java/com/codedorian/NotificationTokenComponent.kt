@@ -9,11 +9,9 @@ class NotificationTokenComponent(
     name: String,
     private val bridgeDelegate: BridgeDelegate<HotwireDestination>,
 ) : BridgeComponent<HotwireDestination>(name, bridgeDelegate) {
-    private val fragment: WebFragment
-        get() = bridgeDelegate.destination.fragment as WebFragment
-
     override fun onReceive(message: Message) {
         if (message.event == "connect") {
+            val fragment = bridgeDelegate.destination.fragment as? WebFragment ?: return
             fragment.requestNotificationPermission()
         }
     }

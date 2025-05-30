@@ -22,6 +22,7 @@
     <option name="MODE" value="default_activity" />
     <option name="RESTORE_ENABLED" value="false" />
     <option name="RESTORE_FILE" value="" />
+    <option name="RESTORE_FRESH_INSTALL_ONLY" value="false" />
     <option name="CLEAR_LOGCAT" value="false" />
     <option name="SHOW_LOGCAT_AUTOMATICALLY" value="false" />
     <option
@@ -88,11 +89,6 @@
     <option name="SEARCH_ACTIVITY_IN_GLOBAL_SCOPE" value="false" />
     <option name="SKIP_ACTIVITY_VALIDATION" value="false" />
     <method v="2">
-      <option
-        name="ToolBeforeRunTask"
-        enabled="true"
-        actionId="Tool_External Tools_sync"
-      />
       <option
         name="Android.Gradle.BeforeRunTask"
         enabled="true"
