@@ -51,6 +51,10 @@ class CodeDorianApplication : Application() {
                 "confirm",
                 ::ConfirmComponent,
             ),
+            BridgeComponentFactory(
+                "menu",
+                ::MenuComponent,
+            ),
         )
 
         Hotwire.config.jsonConverter = KotlinXJsonConverter()
