@@ -56,6 +56,6 @@ class CodeDorianApplication : Application() {
         Hotwire.config.jsonConverter = KotlinXJsonConverter()
         Hotwire.config.webViewDebuggingEnabled = true
         Hotwire.config.debugLoggingEnabled = true
-        HotwireConfig.applicationUserAgentPrefix = "$packageName/$version"
+        Hotwire.config.applicationUserAgentPrefix = "$packageName/$version"
     }
 }
