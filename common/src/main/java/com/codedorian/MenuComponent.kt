@@ -1,6 +1,5 @@
 package com.codedorian // Replace with your package name.
 
-import android.util.Log
 import android.view.Gravity
 import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
@@ -31,7 +30,7 @@ import kotlinx.serialization.Serializable
 
 class MenuComponent(
     name: String,
-    private val bridgeDelegate: BridgeDelegate<HotwireDestination>
+    private val bridgeDelegate: BridgeDelegate<HotwireDestination>,
 ) : BridgeComponent<HotwireDestination>(name, bridgeDelegate) {
     private val menuViewId = 2
 
@@ -50,25 +49,28 @@ class MenuComponent(
         val toolbar = fragment.toolbarForNavigation() ?: return
         val data = message.data<MessageData>() ?: return
 
-        val composeView = ComposeView(fragment.requireContext()).apply {
-            id = menuViewId
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                MenuDropdown(
-                    data = data,
-                    onItemSelected = { index ->
-                        replyTo(message.event, SelectionMessageData(index))
-                    }
-                )
+        val composeView =
+            ComposeView(fragment.requireContext()).apply {
+                id = menuViewId
+                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                setContent {
+                    MenuDropdown(
+                        data = data,
+                        onItemSelected = { index ->
+                            replyTo(message.event, SelectionMessageData(index))
+                        },
+                    )
+                }
             }
-        }
 
-        val layoutParams = Toolbar.LayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        ).apply {
-            gravity = Gravity.END
-        }
+        val layoutParams =
+            Toolbar
+                .LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                ).apply {
+                    gravity = Gravity.END
+                }
 
         toolbar.addView(composeView, layoutParams)
     }
@@ -82,34 +84,37 @@ class MenuComponent(
 
     @Serializable
     data class MessageData(
-        val menu: List<Item>
+        val menu: List<Item>,
     )
 
     @Serializable
     data class Item(
         val title: String,
-        @SerialName("image") val image: String?
+        @SerialName("image") val image: String?,
     )
 
     @Serializable
-    data class SelectionMessageData(val index: Int)
+    data class SelectionMessageData(
+        val index: Int,
+    )
 
     @Composable
     private fun MenuDropdown(
-        data: MessageData, onItemSelected: (Int) -> Unit
+        data: MessageData,
+        onItemSelected: (Int) -> Unit,
     ) {
         var expanded by remember { mutableStateOf(false) }
 
         IconButton(onClick = { expanded = !expanded }) {
             Icon(
                 imageVector = Icons.Default.MoreVert,
-                contentDescription = "menu"
+                contentDescription = "menu",
             )
         }
 
         DropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
         ) {
             data.menu.forEachIndexed { index, item ->
                 DropdownMenuItem(
@@ -119,9 +124,10 @@ class MenuComponent(
                                 text = it,
                                 fontFamily = FontFamily(Font(R.font.material_symbols)),
                                 fontSize = 20.sp,
-                                style = TextStyle(
-                                    fontFeatureSettings = "liga"
-                                )
+                                style =
+                                    TextStyle(
+                                        fontFeatureSettings = "liga",
+                                    ),
                             )
                         }
                     },
@@ -129,7 +135,7 @@ class MenuComponent(
                     onClick = {
                         expanded = false
                         onItemSelected(index)
-                    }
+                    },
                 )
             }
         }
