@@ -19,7 +19,6 @@ import dev.hotwire.core.bridge.BridgeComponent
 import dev.hotwire.core.bridge.BridgeDelegate
 import dev.hotwire.core.bridge.Message
 import dev.hotwire.navigation.destinations.HotwireDestination
-import dev.hotwire.navigation.fragments.HotwireFragment
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -45,7 +44,9 @@ class ButtonComponent(
     }
 
     private fun addButton(message: Message) {
-        val fragment = bridgeDelegate.destination.fragment as? WebFragment ?: return
+        val fragment = bridgeDelegate.destination.fragment
+        if (fragment !is WebFragment && fragment !is WebModalSheetFragment) return
+
         val data = message.data<MessageData>() ?: return
 
         val composeView =
@@ -59,6 +60,7 @@ class ButtonComponent(
                     )
                 }
             }
+
         val layoutParams =
             Toolbar
                 .LayoutParams(
@@ -66,15 +68,29 @@ class ButtonComponent(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                 ).apply { gravity = Gravity.END }
 
-        val toolbar = fragment.toolbarForNavigation()
-        toolbar?.addView(composeView, layoutParams)
+        val toolbar =
+            when (fragment) {
+                is WebFragment -> fragment.toolbarForNavigation()
+                is WebModalSheetFragment -> fragment.toolbarForNavigation()
+                else -> null
+            } ?: return
+
+        toolbar.addView(composeView, layoutParams)
     }
 
     private fun removeButton() {
-        val fragment = bridgeDelegate.destination.fragment as? HotwireFragment ?: return
-        val toolbar = fragment.toolbarForNavigation()
-        val button = toolbar?.findViewById<ComposeView>(buttonId)
-        toolbar?.removeView(button)
+        val fragment = bridgeDelegate.destination.fragment
+        if (fragment !is WebFragment && fragment !is WebModalSheetFragment) return
+
+        val toolbar =
+            when (fragment) {
+                is WebFragment -> fragment.toolbarForNavigation()
+                is WebModalSheetFragment -> fragment.toolbarForNavigation()
+                else -> null
+            } ?: return
+
+        val button = toolbar.findViewById<ComposeView>(buttonId) ?: return
+        toolbar.removeView(button)
     }
 
     @Composable
