@@ -13,6 +13,8 @@ class CodeDorianApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        val version = packageManager.getPackageInfo(packageName, 0).versionName ?: "0.0"
+
         FirebaseApp.initializeApp(this)
 
         Hotwire.loadPathConfiguration(
@@ -54,5 +56,6 @@ class CodeDorianApplication : Application() {
         Hotwire.config.jsonConverter = KotlinXJsonConverter()
         Hotwire.config.webViewDebuggingEnabled = true
         Hotwire.config.debugLoggingEnabled = true
+        HotwireConfig.applicationUserAgentPrefix = "$packageName/$version"
     }
 }
