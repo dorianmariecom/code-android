@@ -11,9 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import dev.hotwire.core.bridge.BridgeComponent
 import dev.hotwire.core.bridge.BridgeDelegate
@@ -29,7 +26,6 @@ class ButtonComponent(
     @Serializable
     data class MessageData(
         @SerialName("title") val title: String,
-        @SerialName("image") val image: String,
     )
 
     private val buttonId = 1
@@ -55,7 +51,6 @@ class ButtonComponent(
                 setContent {
                     ToolbarButton(
                         title = data.title,
-                        image = data.image,
                         onClick = { replyTo(message.event) },
                     )
                 }
@@ -96,7 +91,6 @@ class ButtonComponent(
     @Composable
     private fun ToolbarButton(
         title: String,
-        image: String,
         onClick: () -> Unit,
     ) {
         Button(
@@ -109,15 +103,7 @@ class ButtonComponent(
                     ),
             onClick = onClick,
         ) {
-            if (image.isEmpty()) {
-                Text(title)
-            } else {
-                Text(
-                    text = image,
-                    fontFamily = FontFamily(Font(R.font.material_symbols)),
-                    style = TextStyle(fontFeatureSettings = "liga"),
-                )
-            }
+            Text(title)
         }
     }
 }
