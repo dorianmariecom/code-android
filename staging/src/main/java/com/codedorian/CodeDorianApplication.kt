@@ -56,6 +56,10 @@ class CodeDorianApplication : Application() {
                 ::ShareComponent,
             ),
             BridgeComponentFactory(
+                "refresh",
+                ::RefreshComponent,
+            ),
+            BridgeComponentFactory(
                 "menu",
                 ::MenuComponent,
             ),

@@ -24,17 +24,17 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
-class ShareComponent(
+class RefreshComponent(
     name: String,
     private val bridgeDelegate: BridgeDelegate<HotwireDestination>
 ) : BridgeComponent<HotwireDestination>(name, bridgeDelegate) {
-    private val buttonId = 2
+    private val buttonId = 3
 
     override fun onReceive(message: Message) {
         when (message.event) {
             "connect" -> {
                 CoroutineScope(Dispatchers.Main).launch {
-                    delay(50)
+                    delay(100)
                     addButton(message)
                 }
             }
@@ -44,7 +44,6 @@ class ShareComponent(
 
     private fun addButton(message: Message) {
         val fragment = bridgeDelegate.destination.fragment as? WebFragment ?: return
-        val data = message.data<MessageData>() ?: return
 
         removeButton()
 
@@ -52,7 +51,8 @@ class ShareComponent(
             id = buttonId
             setContent {
                 ToolbarButton(
-                    onClick = { share(data.url) })
+                    onClick = { replyTo(message.event) }
+                )
             }
         }
 
@@ -71,20 +71,6 @@ class ShareComponent(
         val button = toolbar.findViewById<ComposeView>(buttonId) ?: return
         toolbar.removeView(button)
     }
-
-    private fun share(url: String) {
-        val fragment = bridgeDelegate.destination.fragment as? WebFragment ?: return
-        val intent = Intent(Intent.ACTION_SEND).apply {
-            type = "text/plain"
-            putExtra(Intent.EXTRA_TEXT, url)
-        }
-        fragment.requireActivity().startActivity(Intent.createChooser(intent, "Share via"))
-    }
-
-    @Serializable
-    data class MessageData(
-        val url: String
-    )
 }
 
 @Composable
@@ -97,7 +83,7 @@ private fun ToolbarButton(onClick: () -> Unit) {
         )
     ) {
         Text(
-            text = "share",
+            text = "refresh",
             fontFamily = FontFamily(Font(R.font.material_symbols)),
             fontSize = 28.sp,
             style = TextStyle(fontFeatureSettings = "liga")
