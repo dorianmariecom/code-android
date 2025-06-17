@@ -1,6 +1,5 @@
 package com.codedorian
 
-import android.content.Intent
 import android.view.Gravity
 import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
@@ -22,11 +21,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
 
 class RefreshComponent(
     name: String,
-    private val bridgeDelegate: BridgeDelegate<HotwireDestination>
+    private val bridgeDelegate: BridgeDelegate<HotwireDestination>,
 ) : BridgeComponent<HotwireDestination>(name, bridgeDelegate) {
     private val buttonId = 3
 
@@ -47,19 +45,22 @@ class RefreshComponent(
 
         removeButton()
 
-        val composeView = ComposeView(fragment.requireContext()).apply {
-            id = buttonId
-            setContent {
-                ToolbarButton(
-                    onClick = { replyTo(message.event) }
-                )
+        val composeView =
+            ComposeView(fragment.requireContext()).apply {
+                id = buttonId
+                setContent {
+                    ToolbarButton(
+                        onClick = { replyTo(message.event) },
+                    )
+                }
             }
-        }
 
-        val layoutParams = Toolbar.LayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        ).apply { gravity = Gravity.END }
+        val layoutParams =
+            Toolbar
+                .LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                ).apply { gravity = Gravity.END }
 
         val toolbar = fragment.toolbarForNavigation() ?: return
         toolbar.addView(composeView, layoutParams)
@@ -77,16 +78,17 @@ class RefreshComponent(
 private fun ToolbarButton(onClick: () -> Unit) {
     Button(
         onClick = onClick,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color.Transparent,
-            contentColor = Color.Black
-        )
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent,
+                contentColor = Color.Black,
+            ),
     ) {
         Text(
             text = "refresh",
             fontFamily = FontFamily(Font(R.font.material_symbols)),
             fontSize = 28.sp,
-            style = TextStyle(fontFeatureSettings = "liga")
+            style = TextStyle(fontFeatureSettings = "liga"),
         )
     }
 }

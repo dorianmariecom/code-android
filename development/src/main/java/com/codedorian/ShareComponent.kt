@@ -26,7 +26,7 @@ import kotlinx.serialization.Serializable
 
 class ShareComponent(
     name: String,
-    private val bridgeDelegate: BridgeDelegate<HotwireDestination>
+    private val bridgeDelegate: BridgeDelegate<HotwireDestination>,
 ) : BridgeComponent<HotwireDestination>(name, bridgeDelegate) {
     private val buttonId = 2
 
@@ -48,18 +48,22 @@ class ShareComponent(
 
         removeButton()
 
-        val composeView = ComposeView(fragment.requireContext()).apply {
-            id = buttonId
-            setContent {
-                ToolbarButton(
-                    onClick = { share(data.url) })
+        val composeView =
+            ComposeView(fragment.requireContext()).apply {
+                id = buttonId
+                setContent {
+                    ToolbarButton(
+                        onClick = { share(data.url) },
+                    )
+                }
             }
-        }
 
-        val layoutParams = Toolbar.LayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        ).apply { gravity = Gravity.END }
+        val layoutParams =
+            Toolbar
+                .LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                ).apply { gravity = Gravity.END }
 
         val toolbar = fragment.toolbarForNavigation() ?: return
         toolbar.addView(composeView, layoutParams)
@@ -74,16 +78,17 @@ class ShareComponent(
 
     private fun share(url: String) {
         val fragment = bridgeDelegate.destination.fragment as? WebFragment ?: return
-        val intent = Intent(Intent.ACTION_SEND).apply {
-            type = "text/plain"
-            putExtra(Intent.EXTRA_TEXT, url)
-        }
+        val intent =
+            Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, url)
+            }
         fragment.requireActivity().startActivity(Intent.createChooser(intent, "Share via"))
     }
 
     @Serializable
     data class MessageData(
-        val url: String
+        val url: String,
     )
 }
 
@@ -91,16 +96,17 @@ class ShareComponent(
 private fun ToolbarButton(onClick: () -> Unit) {
     Button(
         onClick = onClick,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color.Transparent,
-            contentColor = Color.Black
-        )
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent,
+                contentColor = Color.Black,
+            ),
     ) {
         Text(
             text = "share",
             fontFamily = FontFamily(Font(R.font.material_symbols)),
             fontSize = 28.sp,
-            style = TextStyle(fontFeatureSettings = "liga")
+            style = TextStyle(fontFeatureSettings = "liga"),
         )
     }
 }
