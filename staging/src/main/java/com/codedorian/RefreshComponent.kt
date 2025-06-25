@@ -26,13 +26,14 @@ class RefreshComponent(
     name: String,
     private val bridgeDelegate: BridgeDelegate<HotwireDestination>,
 ) : BridgeComponent<HotwireDestination>(name, bridgeDelegate) {
-    private val buttonId = 3
+    private val buttonId = AppConfig.refreshButtonId
 
     override fun onReceive(message: Message) {
         when (message.event) {
             "connect" -> {
                 CoroutineScope(Dispatchers.Main).launch {
                     delay(100)
+                    removeButton()
                     addButton(message)
                 }
             }
@@ -42,8 +43,7 @@ class RefreshComponent(
 
     private fun addButton(message: Message) {
         val fragment = bridgeDelegate.destination.fragment as? WebFragment ?: return
-
-        removeButton()
+        val toolbar = fragment.toolbarForNavigation() ?: return
 
         val composeView =
             ComposeView(fragment.requireContext()).apply {
@@ -62,7 +62,6 @@ class RefreshComponent(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                 ).apply { gravity = Gravity.END }
 
-        val toolbar = fragment.toolbarForNavigation() ?: return
         toolbar.addView(composeView, layoutParams)
     }
 

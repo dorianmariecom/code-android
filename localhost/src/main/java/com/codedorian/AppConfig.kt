@@ -17,4 +17,8 @@ object AppConfig {
     val devicesURL: String = "$baseDomain/devices"
     var csrfToken: String? = null
     var tabs: List<Tab> = emptyList()
+    val buttonButtonId = 1001
+    val menuViewId = 1002
+    val refreshButtonId = 1003
+    val shareButtonId = 1004
 }

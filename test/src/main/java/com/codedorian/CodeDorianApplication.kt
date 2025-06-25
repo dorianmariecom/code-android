@@ -63,6 +63,10 @@ class CodeDorianApplication : Application() {
                 "menu",
                 ::MenuComponent,
             ),
+            BridgeComponentFactory(
+                "flash",
+                ::FlashComponent,
+            ),
         )
 
         Hotwire.config.jsonConverter = KotlinXJsonConverter()

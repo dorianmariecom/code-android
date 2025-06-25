@@ -1,5 +1,6 @@
 package com.codedorian // Replace with your package name.
 
+import android.util.Log
 import android.view.Gravity
 import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
@@ -32,7 +33,7 @@ class MenuComponent(
     name: String,
     private val bridgeDelegate: BridgeDelegate<HotwireDestination>,
 ) : BridgeComponent<HotwireDestination>(name, bridgeDelegate) {
-    private val menuViewId = 2
+    private val menuViewId = AppConfig.menuViewId
 
     override fun onReceive(message: Message) {
         when (message.event) {
@@ -40,7 +41,9 @@ class MenuComponent(
                 removeMenuButton()
                 addMenuButton(message)
             }
-            "disconnect" -> removeMenuButton()
+            "disconnect" -> {
+                removeMenuButton()
+            }
         }
     }
 
@@ -48,7 +51,6 @@ class MenuComponent(
         val fragment = bridgeDelegate.destination.fragment as? WebFragment ?: return
         val toolbar = fragment.toolbarForNavigation() ?: return
         val data = message.data<MessageData>() ?: return
-
         val composeView =
             ComposeView(fragment.requireContext()).apply {
                 id = menuViewId

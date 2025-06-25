@@ -28,7 +28,7 @@ class ButtonComponent(
         @SerialName("title") val title: String,
     )
 
-    private val buttonId = 1
+    private val buttonId = AppConfig.buttonButtonId
 
     override fun onReceive(message: Message) {
         if (message.event == "connect") {

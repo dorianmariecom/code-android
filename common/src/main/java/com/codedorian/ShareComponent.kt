@@ -28,7 +28,7 @@ class ShareComponent(
     name: String,
     private val bridgeDelegate: BridgeDelegate<HotwireDestination>,
 ) : BridgeComponent<HotwireDestination>(name, bridgeDelegate) {
-    private val buttonId = 2
+    private val buttonId = AppConfig.shareButtonId
 
     override fun onReceive(message: Message) {
         when (message.event) {
