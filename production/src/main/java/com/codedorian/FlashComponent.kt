@@ -1,21 +1,20 @@
 package com.codedorian
 
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.core.graphics.toColorInt
 import dev.hotwire.core.bridge.BridgeComponent
 import dev.hotwire.core.bridge.BridgeDelegate
 import dev.hotwire.core.bridge.Message
 import dev.hotwire.navigation.destinations.HotwireDestination
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import androidx.core.graphics.toColorInt
-import android.graphics.drawable.GradientDrawable
 
 class FlashComponent(
     name: String,
@@ -37,34 +36,39 @@ class FlashComponent(
 
             val borderColor = (if (data.type == "alert") "#dc2626" else "#16a34a").toColorInt()
 
-            val container = FrameLayout(activity).apply {
-                val drawable = GradientDrawable().apply {
-                    setColor(Color.WHITE)
-                    cornerRadius = 8f
-                    setStroke(1, borderColor)
+            val container =
+                FrameLayout(activity).apply {
+                    val drawable =
+                        GradientDrawable().apply {
+                            setColor(Color.WHITE)
+                            cornerRadius = 8f
+                            setStroke(1, borderColor)
+                        }
+                    background = drawable
+                    backgroundTintList = null
                 }
-                background = drawable
-                backgroundTintList = null
-            }
 
             // Create TextView
-            val label = TextView(activity).apply {
-                text = data.message
-                setTextColor(borderColor)
-                textSize = 16f
-                gravity = Gravity.CENTER
-                setPadding(16, 8, 16, 8)
-                backgroundTintList = null
-            }
+            val label =
+                TextView(activity).apply {
+                    text = data.message
+                    setTextColor(borderColor)
+                    textSize = 16f
+                    gravity = Gravity.CENTER
+                    setPadding(16, 8, 16, 8)
+                    backgroundTintList = null
+                }
 
             container.addView(label)
-            val layoutParams = FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply {
-                gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
-                bottomMargin = 250
-            }
+            val layoutParams =
+                FrameLayout
+                    .LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ).apply {
+                        gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+                        bottomMargin = 250
+                    }
             rootView.addView(container, layoutParams)
 
             Handler(Looper.getMainLooper()).postDelayed({

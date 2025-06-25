@@ -1,6 +1,5 @@
 package com.codedorian // Replace with your package name.
 
-import android.util.Log
 import android.view.Gravity
 import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
