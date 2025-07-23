@@ -97,10 +97,10 @@ private fun ToolbarButton(onClick: () -> Unit) {
     Button(
         onClick = onClick,
         colors =
-            ButtonDefaults.buttonColors(
-                containerColor = Color.Transparent,
-                contentColor = Color.Black,
-            ),
+        ButtonDefaults.buttonColors(
+            containerColor = Color.Transparent,
+            contentColor = Color.Black,
+        ),
     ) {
         Text(
             text = "share",
