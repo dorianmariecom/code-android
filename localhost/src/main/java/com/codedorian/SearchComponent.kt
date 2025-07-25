@@ -16,7 +16,7 @@ import kotlinx.serialization.Serializable
 
 class SearchComponent(
     name: String,
-    private val bridgeDelegate: BridgeDelegate<HotwireDestination>
+    private val bridgeDelegate: BridgeDelegate<HotwireDestination>,
 ) : BridgeComponent<HotwireDestination>(name, bridgeDelegate) {
     private val searchViewId = AppConfig.searchViewId
 
@@ -50,14 +50,14 @@ class SearchComponent(
             setOnSearchClickListener {
                 layoutParams = Toolbar.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
+                    ViewGroup.LayoutParams.MATCH_PARENT,
                 )
             }
 
             setOnCloseListener {
                 layoutParams = Toolbar.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
+                    ViewGroup.LayoutParams.MATCH_PARENT,
                 ).apply { gravity = Gravity.END }
                 false
             }
@@ -77,7 +77,7 @@ class SearchComponent(
 
         val layoutParams = Toolbar.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.MATCH_PARENT
+            ViewGroup.LayoutParams.MATCH_PARENT,
         ).apply { gravity = Gravity.END }
 
         toolbar.addView(searchView, layoutParams)

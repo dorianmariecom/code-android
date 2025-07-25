@@ -20,9 +20,9 @@ class CodeDorianApplication : Application() {
         Hotwire.loadPathConfiguration(
             context = this,
             location =
-                PathConfiguration.Location(
-                    remoteFileUrl = AppConfig.configurationsURL,
-                ),
+            PathConfiguration.Location(
+                remoteFileUrl = AppConfig.configurationsURL,
+            ),
         )
 
         Hotwire.registerFragmentDestinations(
