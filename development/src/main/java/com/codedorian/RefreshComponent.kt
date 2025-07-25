@@ -32,7 +32,7 @@ class RefreshComponent(
         when (message.event) {
             "connect" -> {
                 CoroutineScope(Dispatchers.Main).launch {
-                    delay(100)
+                    delay(AppConfig.refreshDelay)
                     removeButton()
                     addButton(message)
                 }
@@ -78,10 +78,10 @@ private fun ToolbarButton(onClick: () -> Unit) {
     Button(
         onClick = onClick,
         colors =
-        ButtonDefaults.buttonColors(
-            containerColor = Color.Transparent,
-            contentColor = Color.Black,
-        ),
+            ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent,
+                contentColor = Color.Black,
+            ),
     ) {
         Text(
             text = "refresh",

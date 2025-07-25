@@ -23,5 +23,12 @@
     <item name="colorOnTertiary">@color/white</item>
     <item name="colorOnSurface">@color/black</item>
     <item name="tabSelectedTextColor">@color/black</item>
+    <item name="searchViewStyle">@style/CodeDorian.SearchView</item>
+  </style>
+
+  <style name="CodeDorian.SearchView" parent="Widget.AppCompat.SearchView">
+    <item name="android:textColor">@color/black</item>
+    <item name="android:textColorHint">@color/black</item>
+    <item name="queryBackground">@color/white</item>
   </style>
 </resources>

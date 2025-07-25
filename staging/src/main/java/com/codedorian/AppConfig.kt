@@ -21,4 +21,8 @@ object AppConfig {
     val menuViewId = 1002
     val refreshButtonId = 1003
     val shareButtonId = 1004
+    val searchViewId = 1005
+    val searchDelay = 20L
+    val refreshDelay = 40L
+    val shareDelay = 60L
 }
