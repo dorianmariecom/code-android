@@ -17,9 +17,17 @@ import dev.hotwire.navigation.util.applyDefaultImeWindowInsets
 class MainActivity : HotwireActivity() {
     private lateinit var bottomNavigationController: HotwireBottomNavigationController
     private var hotwireTabs: List<HotwireBottomTab> = emptyList()
-    private var hotwireNavigatorConfigurations: MutableList<NavigatorConfiguration> = mutableListOf()
+    private var hotwireNavigatorConfigurations: MutableList<NavigatorConfiguration> =
+        mutableListOf(
+            NavigatorConfiguration(
+                name = "loading…",
+                navigatorHostId = R.id.navigator_host_loading,
+                startLocation = AppConfig.baseURL,
+            ),
+        )
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         AppConfig.tabs =
             listOf(
                 Tab(
@@ -29,26 +37,7 @@ class MainActivity : HotwireActivity() {
                 ),
             )
 
-        val navigatorConfigurationLoading =
-            NavigatorConfiguration(
-                name = "loading…",
-                navigatorHostId = R.id.navigator_host_loading,
-                startLocation = AppConfig.baseURL,
-            )
-
-        hotwireTabs =
-            listOf(
-                HotwireBottomTab(
-                    title = "loading…",
-                    iconResId = R.drawable.material_circle,
-                    configuration = navigatorConfigurationLoading,
-                ),
-            )
-
-        hotwireNavigatorConfigurations.add(navigatorConfigurationLoading)
-
         setContentView(R.layout.activity_main)
-        super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         findViewById<View>(R.id.main).applyDefaultImeWindowInsets()
         tabsChanged()

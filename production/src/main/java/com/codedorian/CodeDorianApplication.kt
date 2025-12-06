@@ -8,6 +8,9 @@ import dev.hotwire.core.config.Hotwire
 import dev.hotwire.core.turbo.config.PathConfiguration
 import dev.hotwire.navigation.config.registerBridgeComponents
 import dev.hotwire.navigation.config.registerFragmentDestinations
+import dev.hotwire.navigation.config.registerRouteDecisionHandlers
+import dev.hotwire.navigation.routing.AppNavigationRouteDecisionHandler
+import dev.hotwire.navigation.routing.SystemNavigationRouteDecisionHandler
 
 class CodeDorianApplication : Application() {
     override fun onCreate() {
@@ -28,6 +31,11 @@ class CodeDorianApplication : Application() {
         Hotwire.registerFragmentDestinations(
             WebFragment::class,
             WebModalSheetFragment::class,
+        )
+
+        Hotwire.registerRouteDecisionHandlers(
+            AppNavigationRouteDecisionHandler(),
+            SystemNavigationRouteDecisionHandler(),
         )
 
         Hotwire.registerBridgeComponents(
