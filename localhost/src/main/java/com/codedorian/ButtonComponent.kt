@@ -96,11 +96,11 @@ class ButtonComponent(
         Button(
             modifier = Modifier.padding(horizontal = 8.dp),
             colors =
-            ButtonDefaults
-                .buttonColors(
-                    containerColor = Color.Black,
-                    contentColor = Color.White,
-                ),
+                ButtonDefaults
+                    .buttonColors(
+                        containerColor = Color.Black,
+                        contentColor = Color.White,
+                    ),
             onClick = onClick,
         ) {
             Text(title)

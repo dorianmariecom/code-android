@@ -47,9 +47,9 @@ class MainActivity : HotwireActivity() {
 
         hotwireNavigatorConfigurations.add(navigatorConfigurationLoading)
 
+        setContentView(R.layout.activity_main)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
         findViewById<View>(R.id.main).applyDefaultImeWindowInsets()
         tabsChanged()
     }

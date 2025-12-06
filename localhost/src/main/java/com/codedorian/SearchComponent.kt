@@ -33,7 +33,9 @@ class SearchComponent(
     }
 
     @Serializable
-    private data class QueryMessageData(val query: String?)
+    private data class QueryMessageData(
+        val query: String?,
+    )
 
     private fun addSearchView() {
         val fragment = bridgeDelegate.destination.fragment as? WebFragment ?: return
@@ -42,43 +44,51 @@ class SearchComponent(
         if (existingSearchView != null) return
 
         val context = fragment.requireContext()
-        val searchView = SearchView(context).apply {
-            id = searchViewId
-            isFocusable = true
-            isFocusableInTouchMode = true
+        val searchView =
+            SearchView(context).apply {
+                id = searchViewId
+                isFocusable = true
+                isFocusableInTouchMode = true
 
-            setOnSearchClickListener {
-                layoutParams = Toolbar.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT,
+                setOnSearchClickListener {
+                    layoutParams =
+                        Toolbar.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                        )
+                }
+
+                setOnCloseListener {
+                    layoutParams =
+                        Toolbar
+                            .LayoutParams(
+                                ViewGroup.LayoutParams.WRAP_CONTENT,
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                            ).apply { gravity = Gravity.END }
+                    false
+                }
+
+                setOnQueryTextListener(
+                    object : SearchView.OnQueryTextListener {
+                        override fun onQueryTextSubmit(query: String?): Boolean {
+                            replyTo("connect", QueryMessageData(query))
+                            return true
+                        }
+
+                        override fun onQueryTextChange(newText: String?): Boolean {
+                            replyTo("connect", QueryMessageData(newText))
+                            return true
+                        }
+                    },
                 )
             }
 
-            setOnCloseListener {
-                layoutParams = Toolbar.LayoutParams(
+        val layoutParams =
+            Toolbar
+                .LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.MATCH_PARENT,
                 ).apply { gravity = Gravity.END }
-                false
-            }
-
-            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                override fun onQueryTextSubmit(query: String?): Boolean {
-                    replyTo("connect", QueryMessageData(query))
-                    return true
-                }
-
-                override fun onQueryTextChange(newText: String?): Boolean {
-                    replyTo("connect", QueryMessageData(newText))
-                    return true
-                }
-            })
-        }
-
-        val layoutParams = Toolbar.LayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.MATCH_PARENT,
-        ).apply { gravity = Gravity.END }
 
         toolbar.addView(searchView, layoutParams)
     }
