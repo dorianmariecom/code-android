@@ -40,6 +40,7 @@ class MenuComponent(
                 removeMenuButton()
                 addMenuButton(message)
             }
+
             "disconnect" -> {
                 removeMenuButton()
             }
@@ -126,9 +127,9 @@ class MenuComponent(
                                 fontFamily = FontFamily(Font(R.font.material_symbols)),
                                 fontSize = 20.sp,
                                 style =
-                                TextStyle(
-                                    fontFeatureSettings = "liga",
-                                ),
+                                    TextStyle(
+                                        fontFeatureSettings = "liga",
+                                    ),
                             )
                         }
                     },

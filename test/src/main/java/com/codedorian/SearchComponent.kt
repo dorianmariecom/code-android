@@ -28,7 +28,10 @@ class SearchComponent(
                     addSearchView()
                 }
             }
-            "disconnect" -> removeSearchView()
+
+            "disconnect" -> {
+                removeSearchView()
+            }
         }
     }
 
