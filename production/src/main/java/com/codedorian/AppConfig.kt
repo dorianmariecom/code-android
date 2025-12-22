@@ -13,7 +13,7 @@ object AppConfig {
         }
 
     val baseURL: String = baseDomain
-    val configurationsURL: String = "$baseDomain/configurations/android_v2.json"
+    val configurationsURL: String = "$baseDomain/configurations/android.json"
     val devicesURL: String = "$baseDomain/devices"
     var csrfToken: String? = null
     var tabs: List<Tab> = emptyList()
