@@ -1,5 +1,8 @@
 default_platform(:android)
 
+require "fileutils"
+require "tmpdir"
+
 def gradle_task_suffix(build_type)
   build_type[0].upcase + build_type[1..]
 end
@@ -10,7 +13,32 @@ def build_aab(module_name, build_type)
   File.join(module_name, "build/outputs/bundle/#{build_type}/#{module_name}-#{build_type}.aab")
 end
 
-def upload_to_play(package_name, aab_path, track, release_status, changelog: nil)
+def version_code_for_module(module_name)
+  gradle_file = File.join(module_name, "build.gradle.kts")
+  content = File.read(gradle_file)
+  match = content.match(/versionCode\s*=\s*(\d+)/)
+  raise "Unable to find versionCode in #{gradle_file}" if match.nil?
+  match[1]
+end
+
+def metadata_path_for_changelog(changelog, version_code:, locale: "en-US")
+  return nil if changelog.to_s.strip.empty?
+
+  tmp_dir = Dir.mktmpdir("fastlane-metadata")
+  changelog_dir = File.join(tmp_dir, locale, "changelogs")
+  FileUtils.mkdir_p(changelog_dir)
+  File.write(File.join(changelog_dir, "#{version_code}.txt"), changelog)
+  tmp_dir
+end
+
+def upload_to_play(package_name, aab_path, track, release_status, module_name: nil, changelog: nil)
+  version_code = nil
+  if !changelog.to_s.strip.empty? && module_name
+    version_code = version_code_for_module(module_name)
+  end
+
+  metadata_path = metadata_path_for_changelog(changelog, version_code: version_code) if version_code
+
   supply(
     package_name: package_name,
     aab: aab_path,
@@ -18,8 +46,9 @@ def upload_to_play(package_name, aab_path, track, release_status, changelog: nil
     track: track,
     release_status: release_status,
     json_key: ENV["PLAY_STORE_JSON_KEY"],
-    skip_upload_metadata: true,
-    skip_upload_changelogs: ENV["RELEASE_NOTES"].to_s.strip,
+    metadata_path: metadata_path,
+    skip_upload_metadata: metadata_path.nil?,
+    skip_upload_changelogs: metadata_path.nil?,
     skip_upload_images: true,
     skip_upload_screenshots: true
   )
@@ -58,6 +87,8 @@ platform :android do
       aab_path,
       ENV["PLAY_TRACK_PRODUCTION"] || "production",
       "completed",
+      module_name: "production",
+      changelog: ENV["RELEASE_NOTES"]
     )
   end
 end
