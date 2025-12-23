@@ -10,17 +10,16 @@ def build_aab(module_name, build_type)
   File.join(module_name, "build/outputs/bundle/#{build_type}/#{module_name}-#{build_type}.aab")
 end
 
-def upload_to_play(package_name, aab_path, track, release_status)
-  json_key = ENV["PLAY_STORE_JSON_KEY"] || ENV["SUPPLY_JSON_KEY"] || ENV["GOOGLE_PLAY_JSON_KEY"]
+def upload_to_play(package_name, aab_path, track, release_status, changelog: nil)
   supply(
     package_name: package_name,
     aab: aab_path,
     skip_upload_apk: true,
     track: track,
     release_status: release_status,
-    json_key: json_key,
+    json_key: ENV["PLAY_STORE_JSON_KEY"],
     skip_upload_metadata: true,
-    skip_upload_changelogs: true,
+    skip_upload_changelogs: ENV["RELEASE_NOTES"].to_s.strip,
     skip_upload_images: true,
     skip_upload_screenshots: true
   )
@@ -30,30 +29,35 @@ platform :android do
   desc "Upload test build to Google Play"
   lane :test do
     aab_path = build_aab("test", "ttest")
-    upload_to_play("com.codedorian.test", aab_path, ENV["PLAY_TRACK_TEST"] || "internal", "completed")
+    upload_to_play("com.codedorian.test", aab_path, ENV["PLAY_TRACK_TEST"] || "internal", "draft")
   end
 
   desc "Upload localhost build to Google Play"
   lane :localhost do
     aab_path = build_aab("localhost", "localhost")
-    upload_to_play("com.codedorian.localhost", aab_path, ENV["PLAY_TRACK_LOCALHOST"] || "internal", "completed")
+    upload_to_play("com.codedorian.localhost", aab_path, ENV["PLAY_TRACK_LOCALHOST"] || "internal", "draft")
   end
 
   desc "Upload development build to Google Play"
   lane :development do
     aab_path = build_aab("development", "development")
-    upload_to_play("com.codedorian.development", aab_path, ENV["PLAY_TRACK_DEVELOPMENT"] || "internal", "completed")
+    upload_to_play("com.codedorian.development", aab_path, ENV["PLAY_TRACK_DEVELOPMENT"] || "internal", "draft")
   end
 
   desc "Upload staging build to Google Play"
   lane :staging do
     aab_path = build_aab("staging", "staging")
-    upload_to_play("com.codedorian.staging", aab_path, ENV["PLAY_TRACK_STAGING"] || "internal", "completed")
+    upload_to_play("com.codedorian.staging", aab_path, ENV["PLAY_TRACK_STAGING"] || "internal", "draft")
   end
 
   desc "Upload production build to Google Play"
   lane :production do
     aab_path = build_aab("production", "production")
-    upload_to_play("com.codedorian", aab_path, ENV["PLAY_TRACK_PRODUCTION"] || "production", "completed")
+    upload_to_play(
+      "com.codedorian",
+      aab_path,
+      ENV["PLAY_TRACK_PRODUCTION"] || "production",
+      "completed",
+    )
   end
 end
