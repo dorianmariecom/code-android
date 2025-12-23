@@ -1,0 +1,67 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+VALID_KINDS = %w[major minor patch].freeze
+
+def usage!
+  warn "Usage: bin/bump (major|minor|patch)"
+  exit 1
+end
+
+kind = ARGV[0]
+usage! unless VALID_KINDS.include?(kind)
+
+module_dirs = %w[test localhost development staging production]
+gradle_files = module_dirs.map { |m| File.join(m, "build.gradle.kts") }.select { |p| File.exist?(p) }
+if gradle_files.empty?
+  warn "No module build.gradle.kts files found."
+  exit 1
+end
+
+first_content = File.read(gradle_files.first)
+version_name_match = first_content.match(/versionName\s*=\s*"([^"]+)"/)
+version_code_match = first_content.match(/versionCode\s*=\s*(\d+)/)
+if version_name_match.nil? || version_code_match.nil?
+  warn "Could not find versionName/versionCode in #{gradle_files.first}"
+  exit 1
+end
+
+version_name = version_name_match[1]
+version_code = version_code_match[1].to_i
+
+parts = version_name.split(".").map(&:to_i)
+parts << 0 while parts.length < 3
+original_parts_count = version_name.split(".").length
+
+case kind
+when "major"
+  parts[0] += 1
+  parts[1] = 0
+  parts[2] = 0
+when "minor"
+  parts[1] += 1
+  parts[2] = 0
+when "patch"
+  parts[2] += 1
+end
+
+new_version_name =
+  if original_parts_count == 2 && parts[2].zero? && kind != "patch"
+    "#{parts[0]}.#{parts[1]}"
+  elsif original_parts_count == 1 && parts[1].zero? && parts[2].zero? && kind == "major"
+    parts[0].to_s
+  else
+    "#{parts[0]}.#{parts[1]}.#{parts[2]}"
+  end
+
+new_version_code = version_code + 1
+
+gradle_files.each do |path|
+  content = File.read(path)
+  content = content.gsub(/versionName\s*=\s*"[^"]+"/, %{versionName = "#{new_version_name}"})
+  content = content.gsub(/versionCode\s*=\s*\d+/, "versionCode = #{new_version_code}")
+  File.write(path, content)
+end
+
+puts "Bumped versionName to #{new_version_name} and versionCode to #{new_version_code} in:"
+gradle_files.each { |path| puts "  - #{path}" }

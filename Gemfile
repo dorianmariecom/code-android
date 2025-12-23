@@ -4,10 +4,13 @@ source "https://rubygems.org"
 
 ruby "3.4.5"
 
+gem "abbrev"
 gem "bump"
 gem "bundler-audit"
 gem "dorian"
 gem "dorian-arguments"
+gem "fastlane"
+gem "nkf"
 gem "nokogiri"
 gem "rails"
 gem "rspec"

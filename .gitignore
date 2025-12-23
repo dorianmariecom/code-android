@@ -16,3 +16,6 @@ local.properties
 google-services.json
 *.aab
 tmp
+secrets
+report.xml
+.env
