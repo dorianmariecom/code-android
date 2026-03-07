@@ -17,20 +17,26 @@ def build_aab(module_name, build_type)
 end
 
 def version_code_for_module(module_name)
-  gradle_file = File.join(module_name, "build.gradle.kts")
+  gradle_file = File.expand_path("../#{module_name}/build.gradle.kts", __dir__)
   content = File.read(gradle_file)
   match = content.match(/versionCode\s*=\s*(\d+)/)
   raise "Unable to find versionCode in #{gradle_file}" if match.nil?
   match[1]
 end
 
-def metadata_path_for_changelog(changelog, version_code:, locale: "en-US")
-  return nil if changelog.to_s.strip.empty?
+def metadata_path_for_changelogs(changelogs_by_locale, version_code:)
+  valid_entries =
+    changelogs_by_locale.to_h.select { |_, value| !value.to_s.strip.empty? }
+  return nil if valid_entries.empty?
 
   tmp_dir = Dir.mktmpdir("fastlane-metadata")
-  changelog_dir = File.join(tmp_dir, locale, "changelogs")
-  FileUtils.mkdir_p(changelog_dir)
-  File.write(File.join(changelog_dir, "#{version_code}.txt"), changelog)
+
+  valid_entries.each do |locale, changelog|
+    changelog_dir = File.join(tmp_dir, locale, "changelogs")
+    FileUtils.mkdir_p(changelog_dir)
+    File.write(File.join(changelog_dir, "#{version_code}.txt"), changelog)
+  end
+
   tmp_dir
 end
 
@@ -40,16 +46,22 @@ def upload_to_play(
   track,
   release_status,
   module_name: nil,
-  changelog: nil
+  changelog: nil,
+  changelogs_by_locale: nil
 )
   version_code = nil
-  if !changelog.to_s.strip.empty? && module_name
+  effective_changelogs = changelogs_by_locale.to_h
+  if effective_changelogs.empty? && !changelog.to_s.strip.empty?
+    effective_changelogs = { "en-US" => changelog }
+  end
+
+  if !effective_changelogs.empty? && module_name
     version_code = version_code_for_module(module_name)
   end
 
   metadata_path =
-    metadata_path_for_changelog(
-      changelog,
+    metadata_path_for_changelogs(
+      effective_changelogs,
       version_code: version_code
     ) if version_code
 
@@ -122,7 +134,10 @@ platform :android do
       ENV["PLAY_TRACK_PRODUCTION"] || "production",
       "completed",
       module_name: "production",
-      changelog: ENV["RELEASE_NOTES"]
+      changelogs_by_locale: {
+        "en-US" => (ENV["EN_CHANGELOG"] || ENV["RELEASE_NOTES"]),
+        "fr-FR" => ENV["FR_CHANGELOG"]
+      }
     )
   end
 end
