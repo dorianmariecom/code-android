@@ -2,6 +2,7 @@ package com.codedorian
 
 import android.Manifest
 import android.os.Build
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.CookieManager
@@ -42,33 +43,41 @@ class WebFragment : HotwireWebFragment() {
         completedOffline: Boolean,
     ) {
         val activity = activity as? MainActivity ?: return
+        logd("onVisitCompleted: location=$location completedOffline=$completedOffline")
         lastCompletedLocation = location
         attachWebViewHooks()
-        activity.persistLastTabLocation(location, navigator)
+        activity.persistLastTabLocation(location)
         pendingScrollRestoreY =
             activity.consumePendingScrollRestore(location)
                 ?: return
+        logd("onVisitCompleted: pendingScrollRestoreY=$pendingScrollRestoreY")
         applyPendingScrollRestore(location)
     }
 
     override fun onPause() {
         super.onPause()
+        logd("onPause: persist visible page state")
         persistVisiblePageState()
     }
 
     override fun onStop() {
+        logd("onStop: persist visible page state")
         persistVisiblePageState()
         super.onStop()
     }
 
     private fun persistVisiblePageState() {
         if (webView == null) {
+            logd("persistVisiblePageState: webView missing, trying to attach hooks")
             attachWebViewHooks()
         }
         val activity = activity as? MainActivity ?: return
         val location = webView?.url ?: lastCompletedLocation
+        logd(
+            "persistVisiblePageState: location=${location ?: "n/a"} lastCompleted=${lastCompletedLocation ?: "n/a"} webViewUrl=${webView?.url ?: "n/a"}",
+        )
         if (!location.isNullOrBlank()) {
-            activity.persistLastTabLocation(location, navigator)
+            activity.persistLastTabLocation(location)
         }
         persistScrollFromJs(location, activity, fromLifecycle = true)
     }
@@ -106,6 +115,13 @@ class WebFragment : HotwireWebFragment() {
             domStorageEnabled = true
             loadsImagesAutomatically = true
             mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                @Suppress("DEPRECATION")
+                forceDark = WebSettings.FORCE_DARK_OFF
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                setAlgorithmicDarkeningAllowed(false)
+            }
         }
 
         CookieManager.getInstance().apply {
@@ -117,6 +133,7 @@ class WebFragment : HotwireWebFragment() {
     private fun attachWebViewHooks() {
         val candidate = findWebView(view)
         if (candidate == null) {
+            logd("attachWebViewHooks: no webview yet")
             return
         }
 
@@ -124,15 +141,20 @@ class WebFragment : HotwireWebFragment() {
             webView = candidate
             configureWebView(webView)
             scrollListenerAttached = false
+            logd("attachWebViewHooks: webview attached hash=${System.identityHashCode(candidate)}")
+        } else {
+            logd("attachWebViewHooks: reusing webview hash=${System.identityHashCode(candidate)}")
         }
 
         if (!scrollListenerAttached) {
             webView?.setOnScrollChangeListener { _, _, scrollY, _, _ ->
                 val activity = activity as? MainActivity ?: return@setOnScrollChangeListener
                 val location = webView?.url ?: lastCompletedLocation
+                logd("onScrollChange: scrollY=$scrollY location=${location ?: "n/a"}")
                 scheduleJsScrollPersist(activity, location)
             }
             scrollListenerAttached = true
+            logd("attachWebViewHooks: scroll listener attached")
         }
 
         applyPendingScrollRestore(lastCompletedLocation)
@@ -141,6 +163,7 @@ class WebFragment : HotwireWebFragment() {
     private fun scheduleAttachWebViewHooks(remainingAttempts: Int = 20) {
         attachWebViewHooks()
         if (webView != null || remainingAttempts <= 0) return
+        if (remainingAttempts == 1) logd("scheduleAttachWebViewHooks: webview still missing after retries")
         view?.postDelayed({ scheduleAttachWebViewHooks(remainingAttempts - 1) }, 120)
     }
 
@@ -148,8 +171,12 @@ class WebFragment : HotwireWebFragment() {
         activity: MainActivity,
         location: String?,
     ) {
-        if (jsScrollPersistScheduled) return
+        if (jsScrollPersistScheduled) {
+            logd("scheduleJsScrollPersist: skip because already scheduled")
+            return
+        }
         jsScrollPersistScheduled = true
+        logd("scheduleJsScrollPersist: location=${location ?: "n/a"}")
         webView?.postDelayed(
             {
                 jsScrollPersistScheduled = false
@@ -164,7 +191,11 @@ class WebFragment : HotwireWebFragment() {
         activity: MainActivity,
         fromLifecycle: Boolean,
     ) {
-        val targetWebView = webView ?: return
+        val targetWebView =
+            webView ?: run {
+                logd("persistScrollFromJs: skip because webView is null fromLifecycle=$fromLifecycle")
+                return
+            }
         targetWebView.evaluateJavascript(
             "(function(){return {" +
                 "href:(window.location&&window.location.href)||''," +
@@ -172,28 +203,51 @@ class WebFragment : HotwireWebFragment() {
                 "};})()",
         ) { raw ->
             val parsed = runCatching { JSONObject(raw ?: "{}") }.getOrNull()
+            if (parsed == null) {
+                logd("persistScrollFromJs: failed to parse JS payload raw=${raw ?: "null"}")
+            }
             val jsLocation = parsed?.optString("href", "")?.ifBlank { null } ?: location
             val scrollY = parsed?.optInt("y", 0) ?: 0
-            if (fromLifecycle && scrollY == 0 && !jsLocation.isNullOrBlank()) {
-                val saved = activity.savedScrollForLocation(jsLocation) ?: 0
+            logd(
+                "persistScrollFromJs: fromLifecycle=$fromLifecycle jsLocation=${jsLocation ?: "n/a"} scrollY=$scrollY raw=${raw ?: "null"}",
+            )
+            val persistLocation =
+                jsLocation
+                    ?.takeIf { it.startsWith("http://") || it.startsWith("https://") }
+            if (jsLocation != null && persistLocation == null) {
+                logd("persistScrollFromJs: ignore non-http location=$jsLocation")
+            }
+            if (fromLifecycle && scrollY == 0 && !persistLocation.isNullOrBlank()) {
+                val saved = activity.savedScrollForLocation(persistLocation) ?: 0
                 if (saved > 0) {
+                    logd("persistScrollFromJs: skip zero overwrite for saved scroll=$saved location=$persistLocation")
                     return@evaluateJavascript
                 }
             }
-            if (!jsLocation.isNullOrBlank()) {
-                activity.persistLastTabLocation(jsLocation, navigator)
+            if (!persistLocation.isNullOrBlank()) {
+                activity.persistLastTabLocation(persistLocation)
             }
-            activity.persistCurrentTabScroll(scrollY, navigator, jsLocation)
+            activity.persistCurrentTabScroll(scrollY, persistLocation)
         }
     }
 
     private fun applyPendingScrollRestore(location: String?) {
-        val targetWebView = webView ?: return
-        val pending = pendingScrollRestoreY ?: return
+        val targetWebView =
+            webView ?: run {
+                logd("applyPendingScrollRestore: skip because webView is null location=${location ?: "n/a"}")
+                return
+            }
+        val pending =
+            pendingScrollRestoreY ?: run {
+                logd("applyPendingScrollRestore: skip because no pending scroll location=${location ?: "n/a"}")
+                return
+            }
         if (pending <= 0) {
+            logd("applyPendingScrollRestore: clear non-positive pending value=$pending location=${location ?: "n/a"}")
             pendingScrollRestoreY = null
             return
         }
+        logd("applyPendingScrollRestore: location=${location ?: "n/a"} targetY=$pending")
         targetWebView.post {
             val js =
                 """
@@ -274,8 +328,16 @@ class WebFragment : HotwireWebFragment() {
                 })();
                 """.trimIndent()
 
-            targetWebView.evaluateJavascript(js, null)
-            targetWebView.postDelayed({ pendingScrollRestoreY = null }, 2500)
+            targetWebView.evaluateJavascript(js) { result ->
+                logd("applyPendingScrollRestore: js applied result=${result ?: "null"} targetY=$pending")
+            }
+            targetWebView.postDelayed(
+                {
+                    logd("applyPendingScrollRestore: clear pending restore")
+                    pendingScrollRestoreY = null
+                },
+                2500,
+            )
         }
     }
 
@@ -298,5 +360,13 @@ class WebFragment : HotwireWebFragment() {
         }
 
         return null
+    }
+
+    private fun logd(message: String) {
+        Log.d(TAG, message)
+    }
+
+    companion object {
+        private const val TAG = "WebFragment"
     }
 }

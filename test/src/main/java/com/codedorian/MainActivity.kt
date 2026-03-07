@@ -2,6 +2,7 @@ package com.codedorian
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
@@ -32,13 +33,17 @@ class MainActivity : HotwireActivity() {
     private val pendingDeepLinks = ArrayDeque<String>()
     private var tabsReady = false
     private var shouldRestoreLastState = true
+    private var skipNextTabRootNavigation = false
     private var tabStates: MutableMap<Int, TabState> = mutableMapOf()
     private val pendingScrollRestore: MutableMap<Int, Int> = mutableMapOf()
     private val prefs by lazy { getSharedPreferences(PREFS_NAME, MODE_PRIVATE) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        // Dynamic navigator hosts are recreated from persisted app state, so we avoid
+        // FragmentManager restoring stale hosts whose ids/configs may no longer exist.
+        super.onCreate(null)
         tabStates = readTabStates()
+        logd("onCreate: savedInstanceState=${savedInstanceState != null}, tabStates=${tabStatesSummary(tabStates)}")
         handleDeepLinkIntent(intent)
         AppConfig.tabs =
             listOf(
@@ -65,6 +70,7 @@ class MainActivity : HotwireActivity() {
     fun tabsChanged() {
         val tabs = AppConfig.tabs
         val areTabsReady = !isPlaceholderTabs(tabs)
+        logd("tabsChanged: tabsReady=$areTabsReady tabs=${tabs.map { "${it.title}:${it.path}" }}")
         if (areTabsReady) {
             migrateTabStateKeysIfNeeded(tabs)
         }
@@ -96,6 +102,9 @@ class MainActivity : HotwireActivity() {
                 hotwireNavigatorConfigurations.add(navigatorConfiguration)
                 if (lastState != null && lastState.scrollY > 0) {
                     pendingScrollRestore[index] = lastState.scrollY
+                    logd(
+                        "tabsChanged: seed pendingScrollRestore tab=$index y=${lastState.scrollY} start=${navigatorConfiguration.startLocation}",
+                    )
                 }
 
                 HotwireBottomTab(
@@ -122,7 +131,7 @@ class MainActivity : HotwireActivity() {
         }
 
         bottomNavigationController = HotwireBottomNavigationController(this, bottomNavigationView)
-        val storedTabIndex = if (pendingDeepLinks.isEmpty() && areTabsReady) readLastTabIndex() else null
+        logd("tabsChanged: load hotwire tabs size=${hotwireTabs.size} initialTabIndex=0")
         bottomNavigationController.load(hotwireTabs, selectedTabIndex = 0)
         tabItemIds =
             List(bottomNavigationView.menu.size()) { index ->
@@ -132,6 +141,11 @@ class MainActivity : HotwireActivity() {
         bottomNavigationController.setOnTabSelectedListener { index, _ ->
             if (!tabsReady) return@setOnTabSelectedListener
             storeLastTabIndex(index)
+            if (skipNextTabRootNavigation) {
+                skipNextTabRootNavigation = false
+                return@setOnTabSelectedListener
+            }
+            routeToTabRoot(index)
         }
         maybeHandleInitialNavigation()
     }
@@ -141,16 +155,23 @@ class MainActivity : HotwireActivity() {
     fun persistLastTabLocation(
         location: String,
         navigator: Navigator,
-    ) {
+    ) = persistLastTabLocation(location)
+
+    fun persistLastTabLocation(location: String) {
         if (!::bottomNavigationController.isInitialized) return
         if (location.isBlank()) return
 
-        val tabIndex =
-            if (delegate.currentNavigator == navigator) {
-                selectedTabIndex() ?: tabIndexForLocation(location) ?: return
-            } else {
-                tabIndexForLocation(location) ?: return
-            }
+        val selectedTabIndex = selectedTabIndex() ?: return
+        val resolvedTabIndex = tabIndexForLocation(location)
+        val tabIndex = resolvedTabIndex ?: selectedTabIndex
+        logd(
+            "persistLastTabLocation: location=$location selectedTab=$selectedTabIndex resolvedTab=$resolvedTabIndex chosenTab=$tabIndex",
+        )
+        if (resolvedTabIndex != null && resolvedTabIndex != selectedTabIndex) {
+            logd("persistLastTabLocation: drop write because resolvedTab != selectedTab")
+            return
+        }
+        logd("persistLastTabLocation: tab=$tabIndex location=$location")
         storeTabState(tabIndex = tabIndex, location = location)
     }
 
@@ -158,57 +179,117 @@ class MainActivity : HotwireActivity() {
         scrollY: Int,
         navigator: Navigator,
         location: String? = null,
-    ) {
-        if (!::bottomNavigationController.isInitialized) return
-        if (scrollY < 0) return
+    ) = persistCurrentTabScroll(scrollY, location)
 
-        val tabIndex =
-            location?.let { tabIndexForLocation(it) }
-                ?: selectedTabIndex()
-                ?: return
+    fun persistCurrentTabScroll(
+        scrollY: Int,
+        location: String? = null,
+    ) {
+        if (!::bottomNavigationController.isInitialized) {
+            logd("persistCurrentTabScroll: skip because bottomNavigationController is not initialized")
+            return
+        }
+        if (scrollY < 0) {
+            logd("persistCurrentTabScroll: skip negative scrollY=$scrollY location=${location ?: "n/a"}")
+            return
+        }
+
+        val selectedTabIndex =
+            selectedTabIndex() ?: run {
+                logd("persistCurrentTabScroll: skip because selectedTabIndex is null")
+                return
+            }
+        val resolvedTabIndex = location?.let { tabIndexForLocation(it) }
+        val tabIndex = resolvedTabIndex ?: selectedTabIndex
+        logd(
+            "persistCurrentTabScroll: selectedTab=$selectedTabIndex resolvedTab=$tabIndex location=${location ?: "n/a"} scrollY=$scrollY",
+        )
+        if (resolvedTabIndex != null && resolvedTabIndex != selectedTabIndex) {
+            logd("persistCurrentTabScroll: drop write because resolvedTab != selectedTab")
+            return
+        }
+        logd("persistCurrentTabScroll: tab=$tabIndex scrollY=$scrollY location=${location ?: "n/a"}")
         storeTabState(tabIndex = tabIndex, scrollY = scrollY)
     }
 
     fun consumePendingScrollRestore(navigator: Navigator): Int? {
-        if (!::bottomNavigationController.isInitialized) return null
+        if (!::bottomNavigationController.isInitialized) {
+            logd("consumePendingScrollRestore(navigator): skip because bottomNavigationController is not initialized")
+            return null
+        }
 
-        val tabIndex = selectedTabIndex() ?: return null
+        val tabIndex =
+            selectedTabIndex() ?: run {
+                logd("consumePendingScrollRestore(navigator): skip because selectedTabIndex is null")
+                return null
+            }
         val value = pendingScrollRestore.remove(tabIndex)
+        if (value != null) {
+            logd("consumePendingScrollRestore(navigator): tab=$tabIndex y=$value")
+        } else {
+            logd("consumePendingScrollRestore(navigator): no pending value for tab=$tabIndex")
+        }
         return value
     }
 
     fun consumePendingScrollRestore(location: String): Int? {
-        if (!::bottomNavigationController.isInitialized) return null
-        val tabIndex = tabIndexForLocation(location) ?: return null
+        if (!::bottomNavigationController.isInitialized) {
+            logd("consumePendingScrollRestore(location): skip because bottomNavigationController is not initialized")
+            return null
+        }
+        val tabIndex =
+            tabIndexForLocation(location) ?: run {
+                logd("consumePendingScrollRestore(location): no tab for location=$location")
+                return null
+            }
         val value = pendingScrollRestore.remove(tabIndex)
+        if (value != null) {
+            logd("consumePendingScrollRestore(location): tab=$tabIndex y=$value location=$location")
+        } else {
+            logd("consumePendingScrollRestore(location): no pending value for tab=$tabIndex location=$location")
+        }
         return value
     }
 
     fun isNavigatorActive(navigator: Navigator): Boolean = delegate.currentNavigator == navigator
 
     fun savedScrollForLocation(location: String): Int? {
-        val tabIndex = tabIndexForLocation(location) ?: return null
-        return tabStates[tabIndex]?.scrollY
+        val tabIndex =
+            tabIndexForLocation(location) ?: run {
+                logd("savedScrollForLocation: no tab for location=$location")
+                return null
+            }
+        val saved = tabStates[tabIndex]?.scrollY
+        logd("savedScrollForLocation: tab=$tabIndex location=$location saved=${saved ?: "n/a"}")
+        return saved
     }
 
     private fun maybeHandleInitialNavigation() {
-        if (!tabsReady || !::bottomNavigationController.isInitialized) return
+        if (!tabsReady || !::bottomNavigationController.isInitialized) {
+            logd(
+                "maybeHandleInitialNavigation: waiting tabsReady=$tabsReady controllerInitialized=${::bottomNavigationController.isInitialized}",
+            )
+            return
+        }
 
         val deepLinkLocation = pendingDeepLinks.removeFirstOrNull()
         if (deepLinkLocation != null) {
             shouldRestoreLastState = false
+            logd("maybeHandleInitialNavigation: deepLink=$deepLinkLocation")
             routeToLocation(deepLinkLocation)
             return
         }
 
         if (shouldRestoreLastState) {
             shouldRestoreLastState = false
+            logd("maybeHandleInitialNavigation: restoring last state")
             restoreLastTabLocation()
         }
     }
 
     private fun handleDeepLinkIntent(intent: Intent?) {
         val location = extractDeepLinkLocation(intent) ?: return
+        logd("handleDeepLinkIntent: queued location=$location")
         pendingDeepLinks.addLast(location)
     }
 
@@ -232,31 +313,78 @@ class MainActivity : HotwireActivity() {
     }
 
     private fun restoreLastTabLocation() {
-        val tabIndex = readLastTabIndex() ?: return
-        val location = tabStates[tabIndex]?.location ?: return
+        val tabIndex =
+            readLastTabIndex() ?: run {
+                logd("restoreLastTabLocation: no last tab index")
+                return
+            }
+        val location =
+            tabStates[tabIndex]?.location ?: run {
+                logd("restoreLastTabLocation: no saved location for tab=$tabIndex")
+                return
+            }
+        val resolvedTabIndex = tabIndexForLocation(location)
+        logd(
+            "restoreLastTabLocation: savedTab=$tabIndex resolvedTab=$resolvedTabIndex location=$location states=${tabStatesSummary(tabStates)}",
+        )
         if (tabIndex in AppConfig.tabs.indices) {
             selectTab(tabIndex)
-            delegate.currentNavigator?.route(location)
+            val route =
+                if (resolvedTabIndex == null || resolvedTabIndex == tabIndex) {
+                    location
+                } else {
+                    val fallback = normalizeLocation(AppConfig.tabs[tabIndex].path.ifBlank { "/" })
+                    logd(
+                        "restoreLastTabLocation: saved location belongs to another tab, using tab root tab=$tabIndex fallback=$fallback",
+                    )
+                    fallback
+                }
+            logd("restoreLastTabLocation: tab=$tabIndex route=$route")
+            window.decorView.post {
+                delegate.currentNavigator?.route(route)
+            }
             return
         }
+        logd("restoreLastTabLocation: fallback route=$location")
         routeToLocation(location)
     }
 
     private fun routeToLocation(location: String) {
+        val selectedBefore = selectedTabIndex()
         val targetTabIndex = findTabIndexForLocation(location)
         if (targetTabIndex >= 0) {
             selectTab(targetTabIndex)
+        } else {
+            logd("routeToLocation: no matching tab for location=$location")
         }
-        delegate.currentNavigator?.route(location)
+        logd(
+            "routeToLocation: selectedBefore=$selectedBefore targetTab=$targetTabIndex selectedAfter=${selectedTabIndex()} location=$location",
+        )
+        window.decorView.post {
+            delegate.currentNavigator?.route(location)
+        }
+    }
+
+    private fun routeToTabRoot(index: Int) {
+        val tab = AppConfig.tabs.getOrNull(index) ?: return
+        val tabLocation = normalizeLocation(tab.path.ifBlank { "/" })
+        logd("routeToTabRoot: tab=$index location=$tabLocation")
+        delegate.currentNavigator?.route(tabLocation)
     }
 
     private fun readLastTabIndex(): Int? {
         val index = prefs.getInt(KEY_LAST_TAB_INDEX, -1)
-        return if (index >= 0) index else null
+        if (index >= 0) {
+            logd("readLastTabIndex: $index")
+            return index
+        }
+        logd("readLastTabIndex: none")
+        return null
     }
 
     private fun storeLastTabIndex(index: Int) {
         prefs.edit().putInt(KEY_LAST_TAB_INDEX, index).commit()
+        logd("storeLastTabIndex: $index")
     }
 
     private fun storeTabState(
@@ -271,6 +399,9 @@ class MainActivity : HotwireActivity() {
                 scrollY = scrollY ?: current?.scrollY ?: 0,
             )
         tabStates[tabIndex] = updated
+        logd(
+            "storeTabState: tab=$tabIndex locationIn=${location ?: "n/a"} scrollIn=${scrollY ?: -1} state=${updated.location}#${updated.scrollY}",
+        )
         storeTabStates()
     }
 
@@ -289,6 +420,7 @@ class MainActivity : HotwireActivity() {
             }
         }
 
+        logd("readTabStates: ${tabStatesSummary(result)}")
         return result
     }
 
@@ -304,13 +436,18 @@ class MainActivity : HotwireActivity() {
             json.put(index.toString(), stateJson)
         }
         prefs.edit().putString(KEY_TAB_STATES, json.toString()).commit()
+        logd("storeTabStates: ${tabStatesSummary(tabStates)}")
     }
 
     private fun selectedTabIndex(): Int? {
         val selectedItemId = bottomNavigationController.view.selectedItemId
         val mappedIndex = tabItemIds.indexOf(selectedItemId)
         if (mappedIndex >= 0) return mappedIndex
-        return selectedItemId.takeIf { it in AppConfig.tabs.indices }
+        val fallback = selectedItemId.takeIf { it in AppConfig.tabs.indices }
+        logd(
+            "selectedTabIndex: selectedItemId=$selectedItemId mappedIndex=$mappedIndex fallback=$fallback tabItemIds=$tabItemIds",
+        )
+        return fallback
     }
 
     private fun selectTab(index: Int) {
@@ -318,10 +455,16 @@ class MainActivity : HotwireActivity() {
         if (index !in AppConfig.tabs.indices) return
 
         val itemId = tabItemIds.getOrNull(index) ?: index
+        logd("selectTab: index=$index itemId=$itemId tabItemIds=$tabItemIds")
+        skipNextTabRootNavigation = true
         bottomNavigationController.view.selectedItemId = itemId
     }
 
-    private fun tabIndexForLocation(location: String): Int? = findTabIndexForLocation(location).takeIf { it >= 0 }
+    private fun tabIndexForLocation(location: String): Int? {
+        val resolved = findTabIndexForLocation(location)
+        logd("tabIndexForLocation: location=$location resolved=$resolved")
+        return resolved.takeIf { it >= 0 }
+    }
 
     private fun migrateTabStateKeysIfNeeded(tabs: List<Tab>) {
         if (tabs.isEmpty() || tabStates.isEmpty()) return
@@ -366,17 +509,25 @@ class MainActivity : HotwireActivity() {
         tabStates = migrated
         storeTabStates()
         migratedLastTabIndex?.let { storeLastTabIndex(it) }
+        logd(
+            "migrateTabStateKeysIfNeeded: changed=$changed oldLast=$oldLastTabIndex newLast=$migratedLastTabIndex states=${tabStatesSummary(tabStates)}",
+        )
     }
 
     private fun findTabIndexForLocation(location: String): Int {
         val normalizedLocation = canonicalLocation(normalizeLocation(location))
-        return AppConfig.tabs
+        val candidates =
+            AppConfig.tabs
             .mapIndexed { index, tab ->
                 val tabRoot = canonicalLocation(normalizeLocation(tab.path.ifBlank { "/" }))
                 index to tabRoot
-            }.filter { (_, tabRoot) -> normalizedLocation.startsWith(tabRoot) }
-            .maxByOrNull { (_, tabRoot) -> tabRoot.length }
-            ?.first ?: -1
+            }
+        val matching = candidates.filter { (_, tabRoot) -> normalizedLocation.startsWith(tabRoot) }
+        val resolved = matching.maxByOrNull { (_, tabRoot) -> tabRoot.length }?.first ?: -1
+        logd(
+            "findTabIndexForLocation: location=$location normalized=$normalizedLocation candidates=$candidates matching=$matching resolved=$resolved",
+        )
+        return resolved
     }
 
     private fun findTabIndexForLocation(
@@ -406,6 +557,7 @@ class MainActivity : HotwireActivity() {
             tabs[0].path.isBlank()
 
     companion object {
+        private const val TAG = "MainActivity"
         private const val PREFS_NAME = "app_state"
         private const val KEY_LAST_TAB_INDEX = "last_tab_index"
         private const val KEY_TAB_STATES = "tab_states"
@@ -417,4 +569,15 @@ class MainActivity : HotwireActivity() {
         val location: String,
         val scrollY: Int,
     )
+
+    private fun logd(message: String) {
+        Log.d(TAG, message)
+    }
+
+    private fun tabStatesSummary(states: Map<Int, TabState>): String =
+        states.entries
+            .sortedBy { it.key }
+            .joinToString(prefix = "[", postfix = "]") { (index, state) ->
+                "$index:${state.location}#${state.scrollY}"
+            }
 }
