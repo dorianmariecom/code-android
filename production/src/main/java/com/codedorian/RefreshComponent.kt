@@ -3,15 +3,24 @@ package com.codedorian
 import android.view.Gravity
 import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.hotwire.core.bridge.BridgeComponent
 import dev.hotwire.core.bridge.BridgeDelegate
@@ -34,7 +43,7 @@ class RefreshComponent(
                 CoroutineScope(Dispatchers.Main).launch {
                     delay(AppConfig.refreshDelay)
                     removeButton()
-                    addButton(message)
+                    addButton()
                 }
             }
 
@@ -44,7 +53,7 @@ class RefreshComponent(
         }
     }
 
-    private fun addButton(message: Message) {
+    private fun addButton() {
         val fragment = bridgeDelegate.destination.fragment as? WebFragment ?: return
         val toolbar = fragment.toolbarForNavigation() ?: return
 
@@ -53,7 +62,7 @@ class RefreshComponent(
                 id = buttonId
                 setContent {
                     ToolbarButton(
-                        onClick = { replyTo(message.event) },
+                        onClick = { fragment.reloadCurrentPage() },
                     )
                 }
             }
@@ -78,19 +87,40 @@ class RefreshComponent(
 
 @Composable
 private fun ToolbarButton(onClick: () -> Unit) {
+    var isRefreshing by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
     Button(
-        onClick = onClick,
+        onClick = {
+            if (isRefreshing) return@Button
+
+            isRefreshing = true
+            onClick()
+            scope.launch {
+                delay(AppConfig.refreshAnimationDuration)
+                isRefreshing = false
+            }
+        },
+        enabled = !isRefreshing,
         colors =
             ButtonDefaults.buttonColors(
                 containerColor = Color.Transparent,
                 contentColor = Color.Black,
             ),
     ) {
-        Text(
-            text = "refresh",
-            fontFamily = FontFamily(Font(R.font.material_symbols)),
-            fontSize = 28.sp,
-            style = TextStyle(fontFeatureSettings = "liga"),
-        )
+        if (isRefreshing) {
+            CircularProgressIndicator(
+                color = Color.Black,
+                strokeWidth = 2.dp,
+                modifier = Modifier.size(20.dp),
+            )
+        } else {
+            Text(
+                text = "refresh",
+                fontFamily = FontFamily(Font(R.font.material_symbols)),
+                fontSize = 28.sp,
+                style = TextStyle(fontFeatureSettings = "liga"),
+            )
+        }
     }
 }

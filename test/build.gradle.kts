@@ -14,8 +14,8 @@ android {
         applicationId = "com.codedorian"
         minSdk = 28
         targetSdk = 35
-        versionCode = 208
-        versionName = "2.8"
+        versionCode = 210
+        versionName = "3.1"
     }
 
     buildFeatures {

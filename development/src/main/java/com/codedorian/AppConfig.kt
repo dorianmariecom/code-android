@@ -24,5 +24,6 @@ object AppConfig {
     val searchViewId = 1005
     val searchDelay = 20L
     val refreshDelay = 40L
+    val refreshAnimationDuration = 900L
     val shareDelay = 60L
 }

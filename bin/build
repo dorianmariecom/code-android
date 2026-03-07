@@ -5,8 +5,8 @@ set -e
 RELEASE_NOTES="$*"
 
 if [ -z "$RELEASE_NOTES" ]; then
-  echo "Usage: bin/build \"changelog\"" >&2
-  exit 1
+    echo "Usage: bin/build \"changelog\"" >&2
+    exit 1
 fi
 
 RELEASE_NOTES="$RELEASE_NOTES" bin/fastlane android test
