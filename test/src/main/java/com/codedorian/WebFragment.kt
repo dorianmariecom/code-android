@@ -15,6 +15,9 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.messaging.FirebaseMessaging
 import dev.hotwire.navigation.destinations.HotwireDestinationDeepLink
 import dev.hotwire.navigation.fragments.HotwireWebFragment
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 import org.json.JSONObject
@@ -27,6 +30,9 @@ class WebFragment : HotwireWebFragment() {
     private var scrollListenerAttached = false
     private var pendingScrollRestoreY: Int? = null
     private var jsScrollPersistScheduled = false
+    private val _isRefreshInProgress = MutableStateFlow(false)
+    val isRefreshInProgress: StateFlow<Boolean> = _isRefreshInProgress.asStateFlow()
+    private var manualRefreshRequested = false
 
     override fun onStart() {
         super.onStart()
@@ -42,6 +48,7 @@ class WebFragment : HotwireWebFragment() {
         location: String,
         completedOffline: Boolean,
     ) {
+        super.onVisitCompleted(location, completedOffline)
         val activity = activity as? MainActivity ?: return
         logd("onVisitCompleted: location=$location completedOffline=$completedOffline")
         lastCompletedLocation = location
@@ -52,6 +59,32 @@ class WebFragment : HotwireWebFragment() {
                 ?: return
         logd("onVisitCompleted: pendingScrollRestoreY=$pendingScrollRestoreY")
         applyPendingScrollRestore(location)
+    }
+
+    override fun onVisitStarted(location: String) {
+        super.onVisitStarted(location)
+        if (manualRefreshRequested) {
+            _isRefreshInProgress.value = true
+            logd("onVisitStarted: manual refresh in progress location=$location")
+        }
+    }
+
+    override fun onVisitRequestFinished(location: String) {
+        super.onVisitRequestFinished(location)
+        finishManualRefresh("onVisitRequestFinished location=$location")
+    }
+
+    override fun onVisitErrorReceived(
+        location: String,
+        error: dev.hotwire.core.turbo.errors.VisitError,
+    ) {
+        super.onVisitErrorReceived(location, error)
+        finishManualRefresh("onVisitErrorReceived location=$location")
+    }
+
+    override fun onDestroyView() {
+        finishManualRefresh("onDestroyView")
+        super.onDestroyView()
     }
 
     override fun onPause() {
@@ -346,7 +379,20 @@ class WebFragment : HotwireWebFragment() {
             webView = findWebView(view)
             configureWebView(webView)
         }
+        if (webView == null) {
+            finishManualRefresh("reloadCurrentPage: webView missing")
+            return
+        }
+        manualRefreshRequested = true
+        _isRefreshInProgress.value = true
         webView?.reload()
+    }
+
+    private fun finishManualRefresh(reason: String) {
+        if (!manualRefreshRequested && !_isRefreshInProgress.value) return
+        manualRefreshRequested = false
+        _isRefreshInProgress.value = false
+        logd("finishManualRefresh: $reason")
     }
 
     private fun findWebView(root: View?): WebView? {

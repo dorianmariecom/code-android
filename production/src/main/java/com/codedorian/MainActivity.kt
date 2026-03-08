@@ -9,6 +9,8 @@ import android.widget.FrameLayout
 import androidx.activity.enableEdgeToEdge
 import androidx.fragment.app.FragmentContainerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import dev.hotwire.core.turbo.visit.VisitAction
+import dev.hotwire.core.turbo.visit.VisitOptions
 import dev.hotwire.navigation.activities.HotwireActivity
 import dev.hotwire.navigation.navigator.Navigator
 import dev.hotwire.navigation.navigator.NavigatorConfiguration
@@ -34,6 +36,9 @@ class MainActivity : HotwireActivity() {
     private var tabsReady = false
     private var shouldRestoreLastState = true
     private var skipNextTabRootNavigation = false
+    private var isProgrammaticTabSelection = false
+    private var isHandlingTabRetap = false
+    private var preloadedTabs = false
     private var tabStates: MutableMap<Int, TabState> = mutableMapOf()
     private val pendingScrollRestore: MutableMap<Int, Int> = mutableMapOf()
     private val prefs by lazy { getSharedPreferences(PREFS_NAME, MODE_PRIVATE) }
@@ -85,6 +90,7 @@ class MainActivity : HotwireActivity() {
                 startLocation = AppConfig.baseURL,
             )
 
+        preloadedTabs = false
         hotwireNavigatorConfigurations = mutableListOf(baseConfiguration)
         navigatorContainer.removeAllViews()
         bottomNavigationView.menu.clear()
@@ -137,6 +143,7 @@ class MainActivity : HotwireActivity() {
             List(bottomNavigationView.menu.size()) { index ->
                 bottomNavigationView.menu.getItem(index).itemId
             }
+        preloadTabs()
         tabsReady = areTabsReady
         bottomNavigationController.setOnTabSelectedListener { index, _ ->
             if (!tabsReady) return@setOnTabSelectedListener
@@ -146,6 +153,12 @@ class MainActivity : HotwireActivity() {
                 return@setOnTabSelectedListener
             }
             routeToTabRoot(index)
+        }
+        bottomNavigationView.setOnItemReselectedListener { item ->
+            if (!tabsReady) return@setOnItemReselectedListener
+            if (isProgrammaticTabSelection || isHandlingTabRetap) return@setOnItemReselectedListener
+            val index = tabItemIds.indexOf(item.itemId).takeIf { it >= 0 } ?: item.itemId
+            bottomNavigationView.post { forceFetchOnTabRetap(index) }
         }
         maybeHandleInitialNavigation()
     }
@@ -325,7 +338,9 @@ class MainActivity : HotwireActivity() {
             }
         val resolvedTabIndex = tabIndexForLocation(location)
         logd(
-            "restoreLastTabLocation: savedTab=$tabIndex resolvedTab=$resolvedTabIndex location=$location states=${tabStatesSummary(tabStates)}",
+            "restoreLastTabLocation: savedTab=$tabIndex resolvedTab=$resolvedTabIndex location=$location states=${tabStatesSummary(
+                tabStates,
+            )}",
         )
         if (tabIndex in AppConfig.tabs.indices) {
             selectTab(tabIndex)
@@ -352,16 +367,47 @@ class MainActivity : HotwireActivity() {
     private fun routeToLocation(location: String) {
         val selectedBefore = selectedTabIndex()
         val targetTabIndex = findTabIndexForLocation(location)
-        if (targetTabIndex >= 0) {
-            selectTab(targetTabIndex)
+        val specificTargetTabIndex =
+            targetTabIndex.takeIf { index ->
+                isSpecificTabMatch(location, index)
+            }
+        if (specificTargetTabIndex != null) {
+            selectTab(specificTargetTabIndex)
         } else {
-            logd("routeToLocation: no matching tab for location=$location")
+            val fallbackTabIndex =
+                readLastTabIndex()?.takeIf { it in AppConfig.tabs.indices }
+                    ?: selectedBefore.takeIf { it in AppConfig.tabs.indices }
+            if (fallbackTabIndex != null && fallbackTabIndex in AppConfig.tabs.indices) {
+                logd(
+                    "routeToLocation: no specific tab for location=$location, fallbackTab=$fallbackTabIndex",
+                )
+                selectTab(fallbackTabIndex)
+            } else {
+                logd("routeToLocation: no specific tab for location=$location and no fallback tab")
+            }
         }
         logd(
-            "routeToLocation: selectedBefore=$selectedBefore targetTab=$targetTabIndex selectedAfter=${selectedTabIndex()} location=$location",
+            "routeToLocation: selectedBefore=$selectedBefore targetTab=$targetTabIndex specificTargetTab=$specificTargetTabIndex selectedAfter=${selectedTabIndex()} location=$location",
         )
         window.decorView.post {
             delegate.currentNavigator?.route(location)
+        }
+    }
+
+    private fun isSpecificTabMatch(
+        location: String,
+        tabIndex: Int,
+    ): Boolean {
+        val tab = AppConfig.tabs.getOrNull(tabIndex) ?: return false
+        val normalizedLocation = canonicalLocation(normalizeLocation(location))
+        val tabRoot = canonicalLocation(normalizeLocation(tab.path.ifBlank { "/" }))
+        val rootTab = canonicalLocation(normalizeLocation("/"))
+
+        // A "/" tab is a catch-all; only treat it as specific for the root page itself.
+        return if (tabRoot == rootTab) {
+            normalizedLocation == rootTab
+        } else {
+            normalizedLocation.startsWith(tabRoot)
         }
     }
 
@@ -370,6 +416,41 @@ class MainActivity : HotwireActivity() {
         val tabLocation = normalizeLocation(tab.path.ifBlank { "/" })
         logd("routeToTabRoot: tab=$index location=$tabLocation")
         delegate.currentNavigator?.route(tabLocation)
+    }
+
+    private fun preloadTabs() {
+        if (preloadedTabs) return
+        if (!::bottomNavigationController.isInitialized) return
+        if (hotwireTabs.size <= 1) {
+            preloadedTabs = true
+            return
+        }
+        val initialTabIndex = selectedTabIndex() ?: 0
+        logd("preloadTabs: initialTab=$initialTabIndex count=${hotwireTabs.size}")
+        hotwireTabs.indices.forEach { index ->
+            if (index == initialTabIndex) return@forEach
+            bottomNavigationController.selectTab(index)
+        }
+        bottomNavigationController.selectTab(initialTabIndex)
+        preloadedTabs = true
+    }
+
+    private fun forceFetchOnTabRetap(index: Int) {
+        if (isHandlingTabRetap) {
+            logd("forceFetchOnTabRetap: skip re-entry for tab=$index")
+            return
+        }
+        val tab = AppConfig.tabs.getOrNull(index) ?: return
+        val tabLocation = normalizeLocation(tab.path.ifBlank { "/" })
+        logd("forceFetchOnTabRetap: tab=$index location=$tabLocation")
+        isHandlingTabRetap = true
+        try {
+            storeLastTabIndex(index)
+            skipNextTabRootNavigation = true
+            bottomNavigationController.route(tabLocation, VisitOptions(action = VisitAction.REPLACE), null, null)
+        } finally {
+            isHandlingTabRetap = false
+        }
     }
 
     private fun readLastTabIndex(): Int? {
@@ -455,9 +536,19 @@ class MainActivity : HotwireActivity() {
         if (index !in AppConfig.tabs.indices) return
 
         val itemId = tabItemIds.getOrNull(index) ?: index
+        val currentItemId = bottomNavigationController.view.selectedItemId
+        if (currentItemId == itemId) {
+            logd("selectTab: skip already selected index=$index itemId=$itemId")
+            return
+        }
         logd("selectTab: index=$index itemId=$itemId tabItemIds=$tabItemIds")
         skipNextTabRootNavigation = true
-        bottomNavigationController.view.selectedItemId = itemId
+        isProgrammaticTabSelection = true
+        try {
+            bottomNavigationController.view.selectedItemId = itemId
+        } finally {
+            isProgrammaticTabSelection = false
+        }
     }
 
     private fun tabIndexForLocation(location: String): Int? {
@@ -510,7 +601,9 @@ class MainActivity : HotwireActivity() {
         storeTabStates()
         migratedLastTabIndex?.let { storeLastTabIndex(it) }
         logd(
-            "migrateTabStateKeysIfNeeded: changed=$changed oldLast=$oldLastTabIndex newLast=$migratedLastTabIndex states=${tabStatesSummary(tabStates)}",
+            "migrateTabStateKeysIfNeeded: changed=$changed oldLast=$oldLastTabIndex newLast=$migratedLastTabIndex states=${tabStatesSummary(
+                tabStates,
+            )}",
         )
     }
 
@@ -518,10 +611,10 @@ class MainActivity : HotwireActivity() {
         val normalizedLocation = canonicalLocation(normalizeLocation(location))
         val candidates =
             AppConfig.tabs
-            .mapIndexed { index, tab ->
-                val tabRoot = canonicalLocation(normalizeLocation(tab.path.ifBlank { "/" }))
-                index to tabRoot
-            }
+                .mapIndexed { index, tab ->
+                    val tabRoot = canonicalLocation(normalizeLocation(tab.path.ifBlank { "/" }))
+                    index to tabRoot
+                }
         val matching = candidates.filter { (_, tabRoot) -> normalizedLocation.startsWith(tabRoot) }
         val resolved = matching.maxByOrNull { (_, tabRoot) -> tabRoot.length }?.first ?: -1
         logd(

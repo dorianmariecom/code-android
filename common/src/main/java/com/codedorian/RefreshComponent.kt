@@ -9,11 +9,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
@@ -62,6 +59,7 @@ class RefreshComponent(
                 id = buttonId
                 setContent {
                     ToolbarButton(
+                        isRefreshing = fragment.isRefreshInProgress.collectAsState().value,
                         onClick = { fragment.reloadCurrentPage() },
                     )
                 }
@@ -86,20 +84,14 @@ class RefreshComponent(
 }
 
 @Composable
-private fun ToolbarButton(onClick: () -> Unit) {
-    var isRefreshing by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
-
+private fun ToolbarButton(
+    isRefreshing: Boolean,
+    onClick: () -> Unit,
+) {
     Button(
         onClick = {
             if (isRefreshing) return@Button
-
-            isRefreshing = true
             onClick()
-            scope.launch {
-                delay(AppConfig.refreshAnimationDuration)
-                isRefreshing = false
-            }
         },
         enabled = !isRefreshing,
         colors =
