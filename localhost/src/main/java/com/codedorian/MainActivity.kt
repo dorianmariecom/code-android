@@ -36,6 +36,7 @@ class MainActivity : HotwireActivity() {
     private var tabsReady = false
     private var shouldRestoreLastState = true
     private var skipNextTabRootNavigation = false
+    private var skipNextTabReselection = false
     private var isProgrammaticTabSelection = false
     private var isHandlingTabRetap = false
     private var preloadedTabs = false
@@ -156,6 +157,11 @@ class MainActivity : HotwireActivity() {
         }
         bottomNavigationView.setOnItemReselectedListener { item ->
             if (!tabsReady) return@setOnItemReselectedListener
+            if (skipNextTabReselection) {
+                skipNextTabReselection = false
+                logd("onItemReselected: consume skip for itemId=${item.itemId}")
+                return@setOnItemReselectedListener
+            }
             if (isProgrammaticTabSelection || isHandlingTabRetap) return@setOnItemReselectedListener
             val index = tabItemIds.indexOf(item.itemId).takeIf { it >= 0 } ?: item.itemId
             bottomNavigationView.post { forceFetchOnTabRetap(index) }
@@ -447,6 +453,7 @@ class MainActivity : HotwireActivity() {
         try {
             storeLastTabIndex(index)
             skipNextTabRootNavigation = true
+            skipNextTabReselection = true
             bottomNavigationController.route(tabLocation, VisitOptions(action = VisitAction.REPLACE), null, null)
         } finally {
             isHandlingTabRetap = false
@@ -543,6 +550,7 @@ class MainActivity : HotwireActivity() {
         }
         logd("selectTab: index=$index itemId=$itemId tabItemIds=$tabItemIds")
         skipNextTabRootNavigation = true
+        skipNextTabReselection = true
         isProgrammaticTabSelection = true
         try {
             bottomNavigationController.view.selectedItemId = itemId
