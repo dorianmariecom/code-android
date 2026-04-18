@@ -367,5 +367,4 @@ class WebFragment : HotwireWebFragment() {
 
         return null
     }
-
 }

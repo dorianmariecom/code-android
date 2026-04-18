@@ -21,38 +21,47 @@ class PushNotificationService : FirebaseMessagingService() {
         // Token is registered on each page load via NotificationTokenComponent
     }
 
-    private fun showNotification(title: String, body: String?, path: String?) {
+    private fun showNotification(
+        title: String,
+        body: String?,
+        path: String?,
+    ) {
         val channelId = "default"
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId,
-                "Notifications",
-                NotificationManager.IMPORTANCE_DEFAULT,
-            )
+            val channel =
+                NotificationChannel(
+                    channelId,
+                    "Notifications",
+                    NotificationManager.IMPORTANCE_DEFAULT,
+                )
             notificationManager.createNotificationChannel(channel)
         }
 
-        val intent = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            if (!path.isNullOrBlank()) putExtra("path", path)
-        }
+        val intent =
+            Intent(this, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                if (!path.isNullOrBlank()) putExtra("path", path)
+            }
 
-        val pendingIntent = PendingIntent.getActivity(
-            this,
-            System.currentTimeMillis().toInt(),
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-        )
+        val pendingIntent =
+            PendingIntent.getActivity(
+                this,
+                System.currentTimeMillis().toInt(),
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
 
-        val notification = NotificationCompat.Builder(this, channelId)
-            .setContentTitle(title)
-            .setContentText(body)
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
-            .build()
+        val notification =
+            NotificationCompat
+                .Builder(this, channelId)
+                .setContentTitle(title)
+                .setContentText(body)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
+                .build()
 
         notificationManager.notify(System.currentTimeMillis().toInt(), notification)
     }

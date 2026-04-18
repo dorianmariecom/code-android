@@ -190,13 +190,14 @@ class MainActivity : HotwireActivity() {
         val navigatorHosts = tabs.map { NavigatorHost() }
 
         hotwireNavigatorConfigurations =
-            tabs.mapIndexed { index, tab ->
-                NavigatorConfiguration(
-                    name = tab.title,
-                    navigatorHostId = containerIds[index],
-                    startLocation = normalizeLocation(tab.path.ifBlank { "/" }),
-                )
-            }.toMutableList()
+            tabs
+                .mapIndexed { index, tab ->
+                    NavigatorConfiguration(
+                        name = tab.title,
+                        navigatorHostId = containerIds[index],
+                        startLocation = normalizeLocation(tab.path.ifBlank { "/" }),
+                    )
+                }.toMutableList()
 
         hotwireTabs =
             tabs.mapIndexed { index, tab ->
