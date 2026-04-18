@@ -48,7 +48,7 @@ class MenuComponent(
     }
 
     private fun addMenuButton(message: Message) {
-        val fragment = bridgeDelegate.destination.fragment as? WebFragment ?: return
+        val fragment = activeFragment() ?: return
         val toolbar = fragment.toolbarForNavigation() ?: return
         val data = message.data<MessageData>() ?: return
         val composeView =
@@ -78,11 +78,16 @@ class MenuComponent(
     }
 
     private fun removeMenuButton() {
-        val fragment = bridgeDelegate.destination.fragment as? WebFragment ?: return
+        val fragment = activeFragment() ?: return
         val toolbar = fragment.toolbarForNavigation() ?: return
         val existingView = toolbar.findViewById<ComposeView>(menuViewId) ?: return
         toolbar.removeView(existingView)
     }
+
+    private fun activeFragment(): WebFragment? =
+        (bridgeDelegate.destination.fragment as? WebFragment)?.takeIf {
+            it.isAdded && it.context != null
+        }
 
     @Serializable
     data class MessageData(

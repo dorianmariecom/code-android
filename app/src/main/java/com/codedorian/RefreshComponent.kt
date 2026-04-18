@@ -51,7 +51,7 @@ class RefreshComponent(
     }
 
     private fun addButton() {
-        val fragment = bridgeDelegate.destination.fragment as? WebFragment ?: return
+        val fragment = activeFragment() ?: return
         val toolbar = fragment.toolbarForNavigation() ?: return
 
         val composeView =
@@ -76,11 +76,16 @@ class RefreshComponent(
     }
 
     private fun removeButton() {
-        val fragment = bridgeDelegate.destination.fragment as? WebFragment ?: return
+        val fragment = activeFragment() ?: return
         val toolbar = fragment.toolbarForNavigation() ?: return
         val button = toolbar.findViewById<ComposeView>(buttonId) ?: return
         toolbar.removeView(button)
     }
+
+    private fun activeFragment(): WebFragment? =
+        (bridgeDelegate.destination.fragment as? WebFragment)?.takeIf {
+            it.isAdded && it.context != null
+        }
 }
 
 @Composable

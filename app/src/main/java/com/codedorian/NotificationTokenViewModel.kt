@@ -11,12 +11,16 @@ import java.net.URL
 class NotificationTokenViewModel {
     suspend fun registerToken(token: String) =
         withContext(Dispatchers.IO) {
+            if (token.isBlank()) return@withContext
+            val csrfToken = AppConfig.csrfToken ?: return@withContext
+
             try {
                 val url = URL(AppConfig.devicesURL)
 
                 val connection = url.openConnection() as HttpURLConnection
 
                 connection.requestMethod = "POST"
+                connection.doOutput = true
                 connection.setRequestProperty(
                     "Content-Type",
                     "application/json",
@@ -27,7 +31,7 @@ class NotificationTokenViewModel {
                 )
                 connection.setRequestProperty(
                     "X-CSRF-Token",
-                    AppConfig.csrfToken,
+                    csrfToken,
                 )
 
                 CookieManager.getInstance().getCookie(AppConfig.baseURL)?.let {
@@ -50,8 +54,8 @@ class NotificationTokenViewModel {
                 }
 
                 connection.responseCode
-            } catch (e: Exception) {
-                e.printStackTrace()
+                connection.disconnect()
+            } catch (_: Exception) {
             }
         }
 }

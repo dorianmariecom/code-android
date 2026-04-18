@@ -6,7 +6,7 @@
     factoryName="Android App"
     activateToolWindowBeforeRun="false"
   >
-    <module name="codedorian.production" />
+    <module name="codedorian.app" />
     <option name="ANDROID_RUN_CONFIGURATION_SCHEMA_VERSION" value="1" />
     <option name="DEPLOY" value="true" />
     <option name="DEPLOY_APK_FROM_BUNDLE" value="false" />

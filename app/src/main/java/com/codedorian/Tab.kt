@@ -8,20 +8,22 @@ data class Tab(
     @SerialName("title") val title: String,
     @SerialName("image") val image: String,
     @SerialName("path") val path: String,
+    @SerialName("default") val default: Boolean = false,
 ) : Comparable<Tab> {
-    override fun compareTo(other: Tab): Int = compareValuesBy(this, other, { it.title }, { it.image }, { it.path })
+    override fun compareTo(other: Tab): Int = compareValuesBy(this, other, { it.title }, { it.image }, { it.path }, { it.default })
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Tab) return false
 
-        return title == other.title && image == other.image && path == other.path
+        return title == other.title && image == other.image && path == other.path && default == other.default
     }
 
     override fun hashCode(): Int {
         var result = title.hashCode()
         result = 31 * result + image.hashCode()
         result = 31 * result + path.hashCode()
+        result = 31 * result + default.hashCode()
         return result
     }
 }

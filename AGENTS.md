@@ -28,4 +28,4 @@ Recent commits use short, lowercase, imperative-style summaries (e.g., “bump t
 
 ## Configuration & Secrets
 
-Keep local credentials and SDK paths in `local.properties` and environment-specific keystores under each module’s `keystores/` directory. Do not commit real secrets; use placeholders or CI-managed secrets where possible.
+Keep local credentials and SDK paths in `local.properties` and environment-specific keystores under `app/keystores/`. Do not commit real secrets; use placeholders or CI-managed secrets where possible.

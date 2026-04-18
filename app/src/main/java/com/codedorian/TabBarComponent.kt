@@ -21,15 +21,14 @@ class TabBarComponent(
             val fragment = bridgeDelegate.destination.fragment as? WebFragment ?: return
             val activity = fragment.activity as? MainActivity ?: return
             val data = message.data<MessageData>() ?: return
-            val newTabs = data.tabs
+            val newTabs = data.tabs.filter { it.title.isNotBlank() && it.path.isNotBlank() }
             val oldTabs = AppConfig.tabs
 
-            if (newTabs == oldTabs) {
-                return
-            } else {
-                AppConfig.tabs = newTabs
-                activity.tabsChanged()
-            }
+            if (newTabs.isEmpty()) return
+            if (newTabs == oldTabs) return
+            AppConfig.tabs = newTabs
+            activity.saveCachedTabs(newTabs)
+            activity.recreate()
         }
     }
 }

@@ -11,13 +11,9 @@ end
 kind = ARGV[0]
 usage! unless VALID_KINDS.include?(kind)
 
-module_dirs = %w[test localhost development staging production]
-gradle_files =
-  module_dirs
-    .map { |m| File.join(m, "build.gradle.kts") }
-    .select { |p| File.exist?(p) }
+gradle_files = ["app/build.gradle.kts"].select { |p| File.exist?(p) }
 if gradle_files.empty?
-  warn "No module build.gradle.kts files found."
+  warn "app/build.gradle.kts not found."
   exit 1
 end
 

@@ -46,7 +46,7 @@ class ShareComponent(
     }
 
     private fun addButton(message: Message) {
-        val fragment = bridgeDelegate.destination.fragment as? WebFragment ?: return
+        val fragment = activeFragment() ?: return
         val data = message.data<MessageData>() ?: return
 
         removeButton()
@@ -73,21 +73,26 @@ class ShareComponent(
     }
 
     private fun removeButton() {
-        val fragment = bridgeDelegate.destination.fragment as? WebFragment ?: return
+        val fragment = activeFragment() ?: return
         val toolbar = fragment.toolbarForNavigation() ?: return
         val button = toolbar.findViewById<ComposeView>(buttonId) ?: return
         toolbar.removeView(button)
     }
 
     private fun share(url: String) {
-        val fragment = bridgeDelegate.destination.fragment as? WebFragment ?: return
+        val fragment = activeFragment() ?: return
         val intent =
             Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
                 putExtra(Intent.EXTRA_TEXT, url)
             }
-        fragment.requireActivity().startActivity(Intent.createChooser(intent, "Share via"))
+        fragment.activity?.startActivity(Intent.createChooser(intent, "Share via"))
     }
+
+    private fun activeFragment(): WebFragment? =
+        (bridgeDelegate.destination.fragment as? WebFragment)?.takeIf {
+            it.isAdded && it.context != null
+        }
 
     @Serializable
     data class MessageData(
