@@ -3,21 +3,22 @@ default_platform(:android)
 require "fileutils"
 require "tmpdir"
 
-def gradle_task_suffix(build_type)
-  build_type[0].upcase + build_type[1..]
+def gradle_task_suffix(name)
+  name[0].upcase + name[1..]
 end
 
-def build_aab(module_name, build_type)
-  task = ":#{module_name}:bundle#{gradle_task_suffix(build_type)}"
+def build_aab(flavor_name, build_type = "release")
+  variant_name = "#{flavor_name}#{gradle_task_suffix(build_type)}"
+  task = ":app:bundle#{gradle_task_suffix(variant_name)}"
   gradle(task: task)
   File.join(
-    module_name,
-    "build/outputs/bundle/#{build_type}/#{module_name}-#{build_type}.aab"
+    "app",
+    "build/outputs/bundle/#{variant_name}/app-#{flavor_name}-#{build_type}.aab"
   )
 end
 
-def version_code_for_module(module_name)
-  gradle_file = File.expand_path("../#{module_name}/build.gradle.kts", __dir__)
+def version_code
+  gradle_file = File.expand_path("../app/build.gradle.kts", __dir__)
   content = File.read(gradle_file)
   match = content.match(/versionCode\s*=\s*(\d+)/)
   raise "Unable to find versionCode in #{gradle_file}" if match.nil?
@@ -45,7 +46,6 @@ def upload_to_play(
   aab_path,
   track,
   release_status,
-  module_name: nil,
   changelog: nil,
   changelogs_by_locale: nil
 )
@@ -55,8 +55,8 @@ def upload_to_play(
     effective_changelogs = { "en-US" => changelog }
   end
 
-  if !effective_changelogs.empty? && module_name
-    version_code = version_code_for_module(module_name)
+  if !effective_changelogs.empty?
+    version_code = version_code()
   end
 
   metadata_path =
@@ -83,7 +83,7 @@ end
 platform :android do
   desc "Upload test build to Google Play"
   lane :test do
-    aab_path = build_aab("test", "ttest")
+    aab_path = build_aab("ttest")
     upload_to_play(
       "com.codedorian.test",
       aab_path,
@@ -94,7 +94,7 @@ platform :android do
 
   desc "Upload localhost build to Google Play"
   lane :localhost do
-    aab_path = build_aab("localhost", "localhost")
+    aab_path = build_aab("localhost")
     upload_to_play(
       "com.codedorian.localhost",
       aab_path,
@@ -105,7 +105,7 @@ platform :android do
 
   desc "Upload development build to Google Play"
   lane :development do
-    aab_path = build_aab("development", "development")
+    aab_path = build_aab("development")
     upload_to_play(
       "com.codedorian.development",
       aab_path,
@@ -116,7 +116,7 @@ platform :android do
 
   desc "Upload staging build to Google Play"
   lane :staging do
-    aab_path = build_aab("staging", "staging")
+    aab_path = build_aab("staging")
     upload_to_play(
       "com.codedorian.staging",
       aab_path,
@@ -127,13 +127,12 @@ platform :android do
 
   desc "Upload production build to Google Play"
   lane :production do
-    aab_path = build_aab("production", "production")
+    aab_path = build_aab("production")
     upload_to_play(
       "com.codedorian",
       aab_path,
       ENV["PLAY_TRACK_PRODUCTION"] || "production",
       "completed",
-      module_name: "production",
       changelogs_by_locale: {
         "en-US" => (ENV["EN_CHANGELOG"] || ENV["RELEASE_NOTES"]),
         "fr-FR" => ENV["FR_CHANGELOG"]

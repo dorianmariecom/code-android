@@ -2,14 +2,15 @@
 
 ## Project Structure & Module Organization
 
-This repo is an Android app split by environment modules. Shared code lives in `common/`, while environment-specific apps live in `test/`, `localhost/`, `development/`, `staging/`, and `production/`. Each module follows the standard Android layout: `src/main/java/` for Kotlin sources, `src/main/res/` for resources, and `src/main/AndroidManifest.xml`. Release automation and Play Store uploads are defined in `fastlane/`, and helper scripts live in `bin/`.
+This repo is an Android app built from a single `app/` module with product flavors for `test`, `localhost`, `development`, `staging`, and `production`. Shared code lives in `app/src/main/`, while environment-specific overrides live in flavor source sets such as `app/src/development/` and `app/src/production/`. Release automation and Play Store uploads are defined in `fastlane/`, and helper scripts live in `bin/`.
 
 ## Build, Test, and Development Commands
 
-- `./gradlew :development:assembleDevelopment` builds the Development APK.
-- `./gradlew :staging:assembleStaging` builds the Staging APK.
-- `./gradlew :production:assembleProduction` builds the Production APK.
-- `bin/sync` syncs `common/` into each environment module.
+- `./gradlew :app:assembleDevelopmentRelease` builds the Development APK.
+- `./gradlew :app:assembleStagingRelease` builds the Staging APK.
+- `./gradlew :app:assembleProductionRelease` builds the Production APK.
+- `./gradlew :app:bundleProductionRelease` builds the Production AAB for Play upload.
+- `bin/sync` is now a no-op because shared code already lives in `app/`.
 - `bin/build "release notes"` runs all fastlane lanes for every environment using the provided changelog text.
 - `bin/fastlane android development` (or `test`, `localhost`, `staging`, `production`) uploads the selected build to Google Play.
 
