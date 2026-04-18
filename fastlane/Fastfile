@@ -55,9 +55,7 @@ def upload_to_play(
     effective_changelogs = { "en-US" => changelog }
   end
 
-  if !effective_changelogs.empty?
-    version_code = version_code()
-  end
+  version_code = version_code() if !effective_changelogs.empty?
 
   metadata_path =
     metadata_path_for_changelogs(
