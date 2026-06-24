@@ -61,7 +61,7 @@ gradle_files.each do |path|
   content =
     content.gsub(
       /versionName\s*=\s*"[^"]+"/,
-      %{versionName = "#{new_version_name}"}
+      %(versionName = "#{new_version_name}")
     )
   content =
     content.gsub(/versionCode\s*=\s*\d+/, "versionCode = #{new_version_code}")

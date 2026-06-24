@@ -1,32 +1,32 @@
 [versions]
-activity = "1.10.1"
-agp = "8.10.1"
-androidx-compose-bom = "2025.05.01"
-appcompat = "1.7.0"
-compose-compiler = "2.1.21"
+activity = "1.13.0"
+agp = "9.1.0"
+androidx-compose-bom = "2026.06.00"
+appcompat = "1.7.1"
+compose-compiler = "2.4.0"
 constraintlayout = "2.2.1"
-coreKtx = "1.16.0"
-firebase-bom = "33.14.0"
-firebaseMessagingKtx = "24.1.1"
-google-services = "4.4.2"
-hotwireCore = "1.2.0"
-hotwireNavigationFragments = "1.2.0"
+coreKtx = "1.17.0"
+firebase-bom = "34.15.0"
+google-services = "4.5.0"
+hotwireCore = "1.2.8"
+hotwireNavigationFragments = "1.2.8"
 keyboardvisibilityevent = "3.0.0-RC3"
-kotlin = "2.1.21"
-kotlinx-serialization-json = "1.8.1"
-material = "1.12.0"
-version-catalog-update = "1.0.0"
+kotlin = "2.4.0"
+kotlinx-serialization-json = "1.11.0"
+material = "1.14.0"
+version-catalog-update = "1.1.0"
 
 [libraries]
 androidx-activity = { module = "androidx.activity:activity", version.ref = "activity" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "androidx-compose-bom" }
+androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
 androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
-firebase-messaging-ktx = { module = "com.google.firebase:firebase-messaging-ktx", version.ref = "firebaseMessagingKtx" }
+firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
 hotwire-core = { module = "dev.hotwire:core", version.ref = "hotwireCore" }
 hotwire-navigation-fragments = { module = "dev.hotwire:navigation-fragments", version.ref = "hotwireNavigationFragments" }
 keyboard-visibility-event = { module = "net.yslibrary.keyboardvisibilityevent:keyboardvisibilityevent", version.ref = "keyboardvisibilityevent" }
@@ -37,6 +37,5 @@ material = { module = "com.google.android.material:material", version.ref = "mat
 android-application = { id = "com.android.application", version.ref = "agp" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "compose-compiler" }
 google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 version-catalog-update = { id = "nl.littlerobots.version-catalog-update", version.ref = "version-catalog-update" }

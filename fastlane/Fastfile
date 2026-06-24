@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 default_platform(:android)
 
 require "fileutils"
@@ -22,12 +24,13 @@ def version_code
   content = File.read(gradle_file)
   match = content.match(/versionCode\s*=\s*(\d+)/)
   raise "Unable to find versionCode in #{gradle_file}" if match.nil?
+
   match[1]
 end
 
 def metadata_path_for_changelogs(changelogs_by_locale, version_code:)
   valid_entries =
-    changelogs_by_locale.to_h.select { |_, value| !value.to_s.strip.empty? }
+    changelogs_by_locale.to_h.reject { |_, value| value.to_s.strip.empty? }
   return nil if valid_entries.empty?
 
   tmp_dir = Dir.mktmpdir("fastlane-metadata")
@@ -55,13 +58,15 @@ def upload_to_play(
     effective_changelogs = { "en-US" => changelog }
   end
 
-  version_code = version_code() if !effective_changelogs.empty?
+  version_code = version_code() unless effective_changelogs.empty?
 
-  metadata_path =
-    metadata_path_for_changelogs(
-      effective_changelogs,
-      version_code: version_code
-    ) if version_code
+  if version_code
+    metadata_path =
+      metadata_path_for_changelogs(
+        effective_changelogs,
+        version_code: version_code
+      )
+  end
 
   supply(
     package_name: package_name,
@@ -69,7 +74,7 @@ def upload_to_play(
     skip_upload_apk: true,
     track: track,
     release_status: release_status,
-    json_key: ENV["PLAY_STORE_JSON_KEY"],
+    json_key: ENV.fetch("PLAY_STORE_JSON_KEY", nil),
     metadata_path: metadata_path,
     skip_upload_metadata: metadata_path.nil?,
     skip_upload_changelogs: metadata_path.nil?,
@@ -132,8 +137,8 @@ platform :android do
       ENV["PLAY_TRACK_PRODUCTION"] || "production",
       "completed",
       changelogs_by_locale: {
-        "en-US" => (ENV["EN_CHANGELOG"] || ENV["RELEASE_NOTES"]),
-        "fr-FR" => ENV["FR_CHANGELOG"]
+        "en-US" => ENV["EN_CHANGELOG"] || ENV.fetch("RELEASE_NOTES", nil),
+        "fr-FR" => ENV.fetch("FR_CHANGELOG", nil)
       }
     )
   end

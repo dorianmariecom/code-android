@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.google.services)
@@ -8,12 +7,12 @@ plugins {
 
 android {
     namespace = "com.codedorian"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.codedorian"
         minSdk = 28
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 401
         versionName = "4.1"
     }
@@ -21,6 +20,7 @@ android {
     buildFeatures {
         buildConfig = true
         compose = true
+        resValues = true
     }
 
     flavorDimensions += "environment"
@@ -126,8 +126,11 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
     }
 }
 
@@ -140,10 +143,11 @@ dependencies {
     implementation(libs.hotwire.core)
     implementation(libs.hotwire.navigation.fragments)
     implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.compose.material3)
     implementation(libs.kotlinx.serialization.json)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
-    implementation(libs.firebase.messaging.ktx)
+    implementation(libs.firebase.messaging)
     implementation(libs.keyboard.visibility.event)
 }
