@@ -1,0 +1,19 @@
+vous pouvez utiliser les programmes créés par un programmeur :
+
+- recevoir des messages
+- recevoir des notifications
+- profiter de l’automatisation
+
+vous pouvez être le programmeur :
+
+- récupérer la météo
+- récupérer les actualités
+- récupérer des données de reddit
+- récupérer des données de twitter
+- récupérer des données d’openai
+- récupérer toutes sortes de données
+- envoyer des notifications
+- envoyer des messages
+- créer des programmes
+- planifier des exécutions
+- automatiser
