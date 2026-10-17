@@ -2,53 +2,16 @@
 <project version="4">
   <component name="deploymentTargetSelector">
     <selectionStates>
-      <SelectionState runConfigName="test">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-03-31T09:29:31.251654Z">
-          <Target type="DEFAULT_BOOT">
-            <handle>
-              <DeviceId
-                pluginId="LocalEmulator"
-                identifier="path=/Users/dorianmariefr/.android/avd/Medium_Phone.avd"
-              />
-            </handle>
-          </Target>
-        </DropdownSelection>
-        <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="development">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-03-08T16:52:36.455813Z">
-          <Target type="DEFAULT_BOOT">
-            <handle>
-              <DeviceId
-                pluginId="LocalEmulator"
-                identifier="path=/Users/dorianmariefr/.android/avd/Medium_Phone_2.avd"
-              />
-            </handle>
-          </Target>
-        </DropdownSelection>
-        <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="staging">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="production">
+      <SelectionState runConfigName="codedorian">
         <option name="selectionMode" value="DROPDOWN" />
         <DropdownSelection timestamp="2025-04-07T18:04:31.598714Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId
-                pluginId="PhysicalDevice"
-                identifier="serial=R8YY207AE7H"
-              />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=R8YY207AE7H" />
             </handle>
           </Target>
         </DropdownSelection>
         <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="localhost">
-        <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
   </component>

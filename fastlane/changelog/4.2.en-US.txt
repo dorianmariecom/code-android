@@ -1,0 +1,1 @@
+Improved tab navigation with lazy loading, remembered tabs and scroll positions, reliable deep links, and refreshed content when selecting a tab. Fixed modal routing for edit and creation forms. Updated Hotwire Native for improved navigation reliability.

@@ -1,0 +1,1 @@
+Appuyez longuement sur les images pour les enregistrer dans Téléchargements. Amélioration des onglets, du défilement mémorisé, des liens directs et de l’actualisation. Correction des formulaires en fenêtre modale. Prise en charge des configurations du serveur au format enveloppé et des règles de navigation hors ligne. Mise à jour de Hotwire Native.

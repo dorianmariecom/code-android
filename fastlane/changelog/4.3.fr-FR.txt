@@ -1,0 +1,1 @@
+Appuyez longuement sur une image pour l’enregistrer dans Téléchargements. Navigation par onglets améliorée : chargement à la demande, mémorisation de l’onglet et du défilement, liens directs fiables et actualisation à la sélection. Correction des fenêtres modales des formulaires de création et de modification. Mise à jour de Hotwire Native.

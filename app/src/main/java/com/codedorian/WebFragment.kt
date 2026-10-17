@@ -12,10 +12,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.messaging.FirebaseMessaging
-import dev.hotwire.core.turbo.visit.VisitAction
-import dev.hotwire.core.turbo.visit.VisitOptions
+import dev.hotwire.core.turbo.webview.HotwireWebView
 import dev.hotwire.navigation.destinations.HotwireDestinationDeepLink
 import dev.hotwire.navigation.fragments.HotwireWebFragment
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,6 +26,7 @@ import org.json.JSONObject
 @HotwireDestinationDeepLink("hotwire://fragment/web")
 class WebFragment : HotwireWebFragment() {
     private val viewModel = NotificationTokenViewModel()
+    private val imageSaver = WebImageSaver(this)
     private var webView: WebView? = null
     private var lastCompletedLocation: String? = null
     private var scrollListenerAttached = false
@@ -36,13 +35,23 @@ class WebFragment : HotwireWebFragment() {
     private val _isRefreshInProgress = MutableStateFlow(false)
     val isRefreshInProgress: StateFlow<Boolean> = _isRefreshInProgress.asStateFlow()
     private var manualRefreshRequested = false
+    private var pageLoading = true
+
+    override fun onWebViewAttached(webView: HotwireWebView) {
+        super.onWebViewAttached(webView)
+        imageSaver.attach(webView)
+    }
+
+    override fun onWebViewDetached(webView: HotwireWebView) {
+        imageSaver.detach()
+        super.onWebViewDetached(webView)
+    }
 
     override fun onStart() {
         super.onStart()
         scheduleAttachWebViewHooks()
 
         KeyboardVisibilityEvent.setEventListener(requireActivity(), viewLifecycleOwner) { isOpen ->
-            activity?.findViewById<BottomNavigationView>(R.id.bottom_navigation)?.isVisible = !isOpen
             toolbarForNavigation()?.isVisible = !isOpen
         }
     }
@@ -52,10 +61,12 @@ class WebFragment : HotwireWebFragment() {
         completedOffline: Boolean,
     ) {
         super.onVisitCompleted(location, completedOffline)
+        finishManualRefresh()
         val activity = activity as? MainActivity ?: return
+        pageLoading = false
         lastCompletedLocation = location
         attachWebViewHooks()
-        activity.persistLastTabLocation(location)
+        navigator?.let(activity::onPageCompleted)
         pendingScrollRestoreY =
             activity.consumePendingScrollRestore(location)
                 ?: return
@@ -63,6 +74,9 @@ class WebFragment : HotwireWebFragment() {
     }
 
     override fun onVisitStarted(location: String) {
+        pageLoading = true
+        pendingScrollRestoreY = null
+        webView?.evaluateJavascript("window.__codeDorianScrollRestore?.cancel?.()", null)
         super.onVisitStarted(location)
         if (manualRefreshRequested) {
             _isRefreshInProgress.value = true
@@ -79,11 +93,16 @@ class WebFragment : HotwireWebFragment() {
         error: dev.hotwire.core.turbo.errors.VisitError,
     ) {
         super.onVisitErrorReceived(location, error)
+        navigator?.let { (activity as? MainActivity)?.onPageCompleted(it) }
         finishManualRefresh()
     }
 
     override fun onDestroyView() {
         finishManualRefresh()
+        imageSaver.detach()
+        webView?.setOnScrollChangeListener(null)
+        webView = null
+        scrollListenerAttached = false
         super.onDestroyView()
     }
 
@@ -100,10 +119,9 @@ class WebFragment : HotwireWebFragment() {
     private fun persistVisiblePageState() {
         if (webView == null) attachWebViewHooks()
         val activity = activity as? MainActivity ?: return
+        val activeNavigator = navigator ?: return
+        if (!activity.isNavigatorActive(activeNavigator)) return
         val location = webView?.url ?: lastCompletedLocation
-        if (!location.isNullOrBlank()) {
-            activity.persistLastTabLocation(location)
-        }
         persistScrollFromJs(location, activity, fromLifecycle = true)
     }
 
@@ -211,6 +229,7 @@ class WebFragment : HotwireWebFragment() {
         activity: MainActivity,
         fromLifecycle: Boolean,
     ) {
+        if (pageLoading || pendingScrollRestoreY != null) return
         val targetWebView = webView ?: return
         targetWebView.evaluateJavascript(
             "(function(){return {" +
@@ -229,9 +248,8 @@ class WebFragment : HotwireWebFragment() {
                 if (saved > 0) return@evaluateJavascript
             }
             if (!persistLocation.isNullOrBlank()) {
-                activity.persistLastTabLocation(persistLocation)
+                activity.persistCurrentTabScroll(scrollY, persistLocation)
             }
-            activity.persistCurrentTabScroll(scrollY, persistLocation)
         }
     }
 
@@ -276,6 +294,7 @@ class WebFragment : HotwireWebFragment() {
                   function cleanup() {
                     listeners.forEach(function(pair) { window.removeEventListener(pair[0], pair[1]); });
                     listeners = [];
+                    document.removeEventListener('turbo:load', retrigger);
                   }
 
                   function tick() {
@@ -333,20 +352,19 @@ class WebFragment : HotwireWebFragment() {
     }
 
     fun reloadCurrentPage() {
-        if (webView == null) {
-            webView = findWebView(view)
-            configureWebView(webView)
-        }
-        val location = webView?.url ?: lastCompletedLocation
+        val target = webView ?: findWebView(view)
+        val activity = activity as? MainActivity ?: return
+        if (manualRefreshRequested) return
         manualRefreshRequested = true
         _isRefreshInProgress.value = true
-        if (!location.isNullOrBlank()) {
-            navigator?.route(location, VisitOptions(action = VisitAction.REPLACE))
-        } else if (webView != null) {
-            webView?.reload()
-        } else {
-            finishManualRefresh()
-        }
+        // Save the outgoing offset before refresh replaces the document.
+        target?.evaluateJavascript("window.scrollY || 0") { raw ->
+            val currentLocation = target.url ?: lastCompletedLocation
+            raw?.toIntOrNull()?.let { y ->
+                currentLocation?.let { activity.persistCurrentTabScroll(y, it) }
+            }
+            if (isAdded && view != null) refresh() else finishManualRefresh()
+        } ?: refresh()
     }
 
     private fun finishManualRefresh() {

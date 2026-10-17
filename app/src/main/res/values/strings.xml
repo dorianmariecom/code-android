@@ -1,9 +1,18 @@
 <resources>
-  <string name="app_name">codedorian</string>
+  <string name="app_name" translatable="false">codedorian</string>
   <string name="loading">loading…</string>
   <string name="hotwire_error_message">error, try again</string>
   <string name="hotwire_file_chooser_select">select file</string>
   <string name="hotwire_file_chooser_select_multiple">select file(s)</string>
   <string name="hotwire_dialog_ok">ok</string>
   <string name="hotwire_dialog_cancel">cancel</string>
+  <string name="copy_image">copy image</string>
+  <string name="download_image">download image</string>
+  <string name="copy_image_started">Copying image…</string>
+  <string name="copy_image_completed">Image copied</string>
+  <string name="copy_image_failed">Could not copy this image. Please try again.</string>
+  <string name="save_image_started">Downloading image to Downloads…</string>
+  <string name="save_image_failed">Could not download this image. Please try again.</string>
+  <string name="save_image_permission_denied">Storage permission is needed to save images.</string>
+  <string name="save_image_unsupported">This image cannot be copied or downloaded directly.</string>
 </resources>

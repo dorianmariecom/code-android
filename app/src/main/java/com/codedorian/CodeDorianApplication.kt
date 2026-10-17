@@ -5,7 +5,6 @@ import com.google.firebase.FirebaseApp
 import dev.hotwire.core.bridge.BridgeComponentFactory
 import dev.hotwire.core.bridge.KotlinXJsonConverter
 import dev.hotwire.core.config.Hotwire
-import dev.hotwire.core.turbo.config.PathConfiguration
 import dev.hotwire.navigation.config.registerBridgeComponents
 import dev.hotwire.navigation.config.registerFragmentDestinations
 import dev.hotwire.navigation.config.registerRouteDecisionHandlers
@@ -20,13 +19,7 @@ class CodeDorianApplication : Application() {
 
         FirebaseApp.initializeApp(this)
 
-        Hotwire.loadPathConfiguration(
-            context = this,
-            location =
-                PathConfiguration.Location(
-                    remoteFileUrl = AppConfig.configurationsURL,
-                ),
-        )
+        AppPathConfiguration.load(this)
 
         Hotwire.registerFragmentDestinations(
             WebFragment::class,
@@ -34,6 +27,7 @@ class CodeDorianApplication : Application() {
         )
 
         Hotwire.registerRouteDecisionHandlers(
+            TabRouteDecisionHandler(),
             AppNavigationRouteDecisionHandler(),
             SystemNavigationRouteDecisionHandler(),
         )

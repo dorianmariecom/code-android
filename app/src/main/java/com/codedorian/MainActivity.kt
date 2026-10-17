@@ -7,7 +7,11 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
 import androidx.activity.enableEdgeToEdge
 import androidx.fragment.app.FragmentContainerView
+import androidx.lifecycle.Lifecycle
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import dev.hotwire.core.turbo.visit.VisitAction
+import dev.hotwire.core.turbo.visit.VisitOptions
+import dev.hotwire.core.turbo.visit.VisitProposal
 import dev.hotwire.navigation.activities.HotwireActivity
 import dev.hotwire.navigation.navigator.Navigator
 import dev.hotwire.navigation.navigator.NavigatorConfiguration
@@ -20,309 +24,185 @@ import org.json.JSONObject
 
 class MainActivity : HotwireActivity() {
     private lateinit var bottomNavigationController: HotwireBottomNavigationController
-    private var hotwireTabs: List<HotwireBottomTab> = emptyList()
-    private var tabItemIds: List<Int> = emptyList()
-    private var hotwireNavigatorConfigurations: MutableList<NavigatorConfiguration> =
-        mutableListOf(
-            NavigatorConfiguration(
-                name = "loading…",
-                navigatorHostId = R.id.navigator_host_loading,
-                startLocation = AppConfig.baseURL,
-            ),
-        )
-    private val pendingDeepLinks = ArrayDeque<String>()
-    private var tabsReady = false
-    private var isProgrammaticTabSelection = false
-    private var scrollPositionsByLocation: MutableMap<String, Int> = mutableMapOf()
+    private var configurations = emptyList<NavigatorConfiguration>()
+    private val locations = TabLocations(AppConfig.baseURL)
     private val prefs by lazy { getSharedPreferences(PREFS_NAME, MODE_PRIVATE) }
+    private var scrollPositionsByLocation = mutableMapOf<String, Int>()
+    private var programmaticSelection = false
+    private var tabsReady = false
+    private val completedTabs = mutableSetOf<Int>()
+    private val pendingRoutes = mutableMapOf<Int, PendingRoute>()
+
+    private data class PendingRoute(val location: String, val options: VisitOptions, val bundle: Bundle?)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(null)
-        handleDeepLinkIntent(intent)
-        AppConfig.tabs = readCachedTabs() ?: listOf(Tab(title = "loading…", image = "circle", path = ""))
+        // Server-defined tabs are reconstructed from our cache, with new host IDs.
+        // Persist selection/scroll ourselves instead of restoring obsolete fragment IDs.
+        AppConfig.tabs = readCachedTabs() ?: listOf(Tab("loading…", "circle", ""))
+        tabsReady = AppConfig.tabs.any { it.path.isNotBlank() }
         scrollPositionsByLocation = readScrollPositions()
+        configurations = AppConfig.tabs.map { tab ->
+            NavigatorConfiguration(
+                name = tab.title,
+                navigatorHostId = View.generateViewId(),
+                startLocation = requireNotNull(locations.resolve(tab.path.ifBlank { "/" })),
+            )
+        }
+        super.onCreate(null)
         setContentView(R.layout.activity_main)
         enableEdgeToEdge()
         findViewById<View>(R.id.main).applyDefaultImeWindowInsets()
-        tabsChanged()
+        loadTabs()
+        openIntent(intent)
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        handleDeepLinkIntent(intent)
-        maybeHandleInitialNavigation()
+        openIntent(intent)
     }
 
-    fun tabsChanged() {
-        tabsReady = false
+    override fun navigatorConfigurations() = configurations
 
+    private fun loadTabs() {
+        val container = findViewById<FrameLayout>(R.id.navigator_container)
         val tabs = AppConfig.tabs
-        val isPlaceholder = isPlaceholderTabs(tabs)
-        val navigatorContainer = findViewById<FrameLayout>(R.id.navigator_container)
-        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-
-        supportFragmentManager
-            .beginTransaction()
-            .apply {
-                supportFragmentManager.fragments
-                    .filterIsInstance<NavigatorHost>()
-                    .forEach { remove(it) }
-            }.commitNow()
-
-        navigatorContainer.removeAllViews()
-        bottomNavigationView.menu.clear()
-
-        if (isPlaceholder) {
-            buildLoadingTab(navigatorContainer)
-        } else {
-            buildConfiguredTabs(tabs, navigatorContainer)
+        val hosts = configurations.map { configuration ->
+            container.addView(FragmentContainerView(this).apply {
+                id = configuration.navigatorHostId
+                layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+            })
+            NavigatorHost()
         }
-
-        val selectedTabIndex =
-            if (tabsReady) {
-                readLastTabIndex()?.takeIf { it in hotwireTabs.indices }
-                    ?: tabs.indexOfFirst { it.default }.takeIf { it >= 0 }
-                    ?: 0
-            } else {
-                0
+        // Make the hosts available to Hotwire's controller without creating their views.
+        // load() must mark them lazy before onViewCreated registers them with Hotwire.
+        supportFragmentManager.beginTransaction().apply {
+            hosts.forEachIndexed { index, host ->
+                add(configurations[index].navigatorHostId, host, "tab_$index")
+                setMaxLifecycle(host, Lifecycle.State.CREATED)
             }
+        }.commitNow()
 
-        bottomNavigationController = HotwireBottomNavigationController(this, bottomNavigationView)
-        bottomNavigationController.load(hotwireTabs, selectedTabIndex = selectedTabIndex)
-        tabItemIds = List(bottomNavigationView.menu.size()) { index -> bottomNavigationView.menu.getItem(index).itemId }
-        if (tabsReady) {
-            storeLastTabIndex(selectedTabIndex)
-        }
+        val selectedIndex = intentLocation(intent)?.let(::tabIndexForLocation)?.takeIf { it >= 0 }
+            ?: prefs.getString(KEY_LAST_TAB_PATH, null)?.let { path -> tabs.indexOfFirst { it.path == path } }?.takeIf { it >= 0 }
+            ?: prefs.getInt(KEY_LAST_TAB_INDEX, -1).takeIf { it in tabs.indices }
+            ?: tabs.indexOfFirst { it.default }.takeIf { it >= 0 }
+            ?: 0
+        bottomNavigationController = HotwireBottomNavigationController(
+            activity = this,
+            view = findViewById(R.id.bottom_navigation),
+            clearNavigationOnTabReselection = false,
+            lazyLoadTabs = true,
+        )
+        bottomNavigationController.load(tabs.mapIndexed { index, tab ->
+            HotwireBottomTab(
+                title = tab.title,
+                iconResId = resources.getIdentifier("material_${tab.image}", "drawable", packageName)
+                    .takeIf { it != 0 } ?: R.drawable.material_circle,
+                configuration = configurations[index],
+            )
+        }, selectedIndex)
+        rememberTab(selectedIndex)
         bottomNavigationController.setOnTabSelectedListener { index, _ ->
-            if (!tabsReady) return@setOnTabSelectedListener
-            storeLastTabIndex(index)
+            rememberTab(index)
+            if (!programmaticSelection) refreshTab(index)
         }
-
-        bottomNavigationView.setOnItemReselectedListener { item ->
-            if (!tabsReady || isProgrammaticTabSelection) return@setOnItemReselectedListener
-            val index = tabItemIds.indexOf(item.itemId).takeIf { it >= 0 } ?: return@setOnItemReselectedListener
-            routeToTabRoot(index)
+        bottomNavigationController.view.setOnItemReselectedListener { item ->
+            if (!programmaticSelection) refreshTab(item.itemId)
         }
-
-        maybeHandleInitialNavigation()
+        supportFragmentManager.beginTransaction().apply {
+            hosts.forEach { setMaxLifecycle(it, Lifecycle.State.RESUMED) }
+        }.commitNow()
     }
 
-    override fun navigatorConfigurations() = hotwireNavigatorConfigurations
-
-    fun persistLastTabLocation(
-        location: String,
-        navigator: Navigator,
-    ) {}
-
-    fun persistLastTabLocation(location: String) {}
-
-    fun persistCurrentTabScroll(
-        scrollY: Int,
-        navigator: Navigator,
-        location: String? = null,
-    ) {
-        if (!isNavigatorActive(navigator)) return
-        persistCurrentTabScroll(scrollY, location)
+    private fun rememberTab(index: Int) {
+        if (!tabsReady) return
+        prefs.edit().putInt(KEY_LAST_TAB_INDEX, index)
+            .putString(KEY_LAST_TAB_PATH, AppConfig.tabs[index].path).apply()
     }
 
-    fun persistCurrentTabScroll(
-        scrollY: Int,
-        location: String? = null,
-    ) {
-        if (scrollY < 0) return
-        val normalizedLocation = location?.let(::canonicalLocationSafe) ?: return
-        scrollPositionsByLocation[normalizedLocation] = scrollY
-        storeScrollPositions()
+    private fun refreshTab(index: Int) {
+        // First selection already performs a network visit through lazy loading.
+        if (index !in completedTabs) return
+        val navigator = delegate.currentNavigator ?: return
+        val root = configurations[index].startLocation
+        val destination = navigator.currentDestination
+        if (destination is WebFragment && locations.key(destination.location) == locations.key(root)) {
+            destination.reloadCurrentPage()
+        } else {
+            bottomNavigationController.route(root, VisitOptions(action = VisitAction.REPLACE))
+        }
     }
 
-    fun consumePendingScrollRestore(navigator: Navigator): Int? = null
+    private fun intentLocation(intent: Intent?): String? {
+        val path = intent?.getStringExtra("path")?.trim()?.takeIf { it.isNotEmpty() }
+            ?: intent?.dataString ?: return null
+        return locations.resolve(path)
+    }
 
-    fun consumePendingScrollRestore(location: String): Int? {
-        val normalizedLocation = canonicalLocationSafe(location)
-        return scrollPositionsByLocation[normalizedLocation]
+    private fun openIntent(intent: Intent?) {
+        if (!tabsReady) return // The tab bridge recreates us once the server supplies tabs.
+        val location = intentLocation(intent) ?: return
+        routeToLocation(location)
+        // Do not replay an already consumed notification on activity recreation.
+        intent?.removeExtra("path")
+        intent?.data = null
+    }
+
+    fun tabIndexForLocation(location: String): Int =
+        if (tabsReady) locations.matchingIndex(location, AppConfig.tabs.map { it.path }) else -1
+
+    fun routeToLocation(location: String, options: VisitOptions = VisitOptions(), bundle: Bundle? = null) {
+        val index = tabIndexForLocation(location)
+        programmaticSelection = true
+        try {
+            if (index >= 0) bottomNavigationController.selectTab(index)
+        } finally {
+            programmaticSelection = false
+        }
+        // A newly selected lazy host isn't ready yet. Keep the route until its
+        // destination exists rather than losing the deep link to a null navigator.
+        val hostId = bottomNavigationController.currentTab.configuration.navigatorHostId
+        pendingRoutes[hostId] = PendingRoute(location, options, bundle)
+        dispatchPendingRoute(hostId)
+    }
+
+    override fun onNavigatorReady(navigator: Navigator) {
+        dispatchPendingRoute(navigator.configuration.navigatorHostId)
+    }
+
+    private fun dispatchPendingRoute(hostId: Int) {
+        window.decorView.post {
+            if (isFinishing || isDestroyed) return@post
+            val host = supportFragmentManager.findFragmentById(hostId) as? NavigatorHost ?: return@post
+            if (!host.isReady()) return@post
+            val route = pendingRoutes.remove(hostId) ?: return@post
+            host.navigator.route(route.location, route.options, route.bundle)
+        }
+    }
+
+    fun shouldSwitchTab(proposal: VisitProposal, configuration: NavigatorConfiguration): Boolean {
+        if (proposal.properties["context"] == "modal") return false
+        val index = tabIndexForLocation(proposal.location)
+        return index >= 0 && configurations[index].navigatorHostId != configuration.navigatorHostId
+    }
+
+    fun onPageCompleted(navigator: Navigator) {
+        val index = configurations.indexOfFirst { it.navigatorHostId == navigator.configuration.navigatorHostId }
+        if (index >= 0) completedTabs.add(index)
     }
 
     fun isNavigatorActive(navigator: Navigator): Boolean = delegate.currentNavigator == navigator
 
-    fun savedScrollForLocation(location: String): Int? {
-        val normalizedLocation = canonicalLocationSafe(location)
-        return scrollPositionsByLocation[normalizedLocation]
+    fun persistCurrentTabScroll(scrollY: Int, location: String) {
+        if (scrollY < 0) return
+        scrollPositionsByLocation[locations.key(location)] = scrollY
+        storeScrollPositions()
     }
 
-    private fun buildLoadingTab(navigatorContainer: FrameLayout) {
-        val containerView =
-            FragmentContainerView(this).apply {
-                id = R.id.navigator_host_loading
-                layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-            }
-        navigatorContainer.addView(containerView)
+    fun consumePendingScrollRestore(location: String): Int? = savedScrollForLocation(location)
 
-        supportFragmentManager
-            .beginTransaction()
-            .add(R.id.navigator_host_loading, NavigatorHost(), "tab_loading")
-            .commitNow()
-
-        val configuration =
-            NavigatorConfiguration(
-                name = "loading…",
-                navigatorHostId = R.id.navigator_host_loading,
-                startLocation = AppConfig.baseURL,
-            )
-
-        hotwireNavigatorConfigurations = mutableListOf(configuration)
-        hotwireTabs =
-            listOf(
-                HotwireBottomTab(
-                    title = "loading…",
-                    iconResId = resources.getIdentifier("material_circle", "drawable", packageName),
-                    configuration = configuration,
-                ),
-            )
-        tabsReady = false
-    }
-
-    private fun buildConfiguredTabs(
-        tabs: List<Tab>,
-        navigatorContainer: FrameLayout,
-    ) {
-        val containerIds = tabs.map { View.generateViewId() }
-        val navigatorHosts = tabs.map { NavigatorHost() }
-
-        hotwireNavigatorConfigurations =
-            tabs
-                .mapIndexed { index, tab ->
-                    NavigatorConfiguration(
-                        name = tab.title,
-                        navigatorHostId = containerIds[index],
-                        startLocation = normalizeLocation(tab.path.ifBlank { "/" }),
-                    )
-                }.toMutableList()
-
-        hotwireTabs =
-            tabs.mapIndexed { index, tab ->
-                HotwireBottomTab(
-                    title = tab.title,
-                    iconResId = resources.getIdentifier("material_${tab.image}", "drawable", packageName),
-                    configuration = hotwireNavigatorConfigurations[index],
-                )
-            }
-
-        tabs.forEachIndexed { index, _ ->
-            val containerView =
-                FragmentContainerView(this).apply {
-                    id = containerIds[index]
-                    layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                }
-            navigatorContainer.addView(containerView)
-        }
-
-        tabs.forEachIndexed { index, _ ->
-            supportFragmentManager
-                .beginTransaction()
-                .add(containerIds[index], navigatorHosts[index], "tab_$index")
-                .commitNow()
-        }
-
-        tabsReady = true
-    }
-
-    private fun maybeHandleInitialNavigation() {
-        if (!tabsReady || !::bottomNavigationController.isInitialized) return
-
-        val deepLinkLocation = pendingDeepLinks.removeFirstOrNull() ?: return
-        routeToLocation(deepLinkLocation)
-    }
-
-    private fun handleDeepLinkIntent(intent: Intent?) {
-        val location = extractDeepLinkLocation(intent) ?: return
-        pendingDeepLinks.addLast(location)
-    }
-
-    private fun extractDeepLinkLocation(intent: Intent?): String? {
-        val path =
-            intent
-                ?.getStringExtra("path")
-                ?.trim()
-                .orEmpty()
-                .ifBlank { intent?.dataString?.trim().orEmpty() }
-        if (path.isBlank()) return null
-        return normalizeLocation(path)
-    }
-
-    private fun normalizeLocation(path: String): String {
-        if (path.startsWith("http://") || path.startsWith("https://")) {
-            return path
-        }
-        return "${AppConfig.baseURL}/${path.trimStart('/')}"
-    }
-
-    private fun routeToLocation(location: String) {
-        val targetTabIndex = findTabIndexForLocation(location)
-        if (targetTabIndex >= 0) {
-            selectTab(targetTabIndex)
-        }
-
-        window.decorView.post {
-            delegate.currentNavigator?.route(location)
-        }
-    }
-
-    private fun routeToTabRoot(index: Int) {
-        val tab = AppConfig.tabs.getOrNull(index) ?: return
-        val target = normalizeLocation(tab.path.ifBlank { "/" })
-        delegate.currentNavigator?.route(target)
-    }
-
-    private fun readLastTabIndex(): Int? {
-        val index = prefs.getInt(KEY_LAST_TAB_INDEX, -1)
-        return if (index >= 0) index else null
-    }
-
-    private fun storeLastTabIndex(index: Int) {
-        prefs.edit().putInt(KEY_LAST_TAB_INDEX, index).apply()
-    }
-
-    private fun selectTab(index: Int) {
-        if (!::bottomNavigationController.isInitialized) return
-        if (index !in AppConfig.tabs.indices) return
-
-        val itemId = tabItemIds.getOrNull(index) ?: return
-        if (bottomNavigationController.view.selectedItemId == itemId) return
-
-        isProgrammaticTabSelection = true
-        try {
-            bottomNavigationController.view.selectedItemId = itemId
-        } finally {
-            isProgrammaticTabSelection = false
-        }
-    }
-
-    private fun findTabIndexForLocation(location: String): Int {
-        val normalizedLocation = canonicalLocation(normalizeLocation(location))
-        return AppConfig.tabs
-            .mapIndexed { index, tab ->
-                index to canonicalLocation(normalizeLocation(tab.path.ifBlank { "/" }))
-            }.filter { (_, tabRoot) ->
-                normalizedLocation.startsWith(tabRoot)
-            }.maxByOrNull { (_, tabRoot) ->
-                tabRoot.length
-            }?.first ?: -1
-    }
-
-    private fun canonicalLocation(location: String): String =
-        if (location.length > AppConfig.baseURL.length) {
-            location.trimEnd('/')
-        } else {
-            location
-        }
-
-    private fun canonicalLocationSafe(location: String): String = canonicalLocation(normalizeLocation(location))
-
-    private fun isPlaceholderTabs(tabs: List<Tab>): Boolean =
-        tabs.size == 1 &&
-            tabs[0].title == "loading…" &&
-            tabs[0].path.isBlank()
+    fun savedScrollForLocation(location: String): Int? = scrollPositionsByLocation[locations.key(location)]
 
     fun saveCachedTabs(tabs: List<Tab>) {
         val json = JSONArray()
@@ -375,6 +255,7 @@ class MainActivity : HotwireActivity() {
     companion object {
         private const val PREFS_NAME = "app_state"
         private const val KEY_LAST_TAB_INDEX = "last_tab_index"
+        private const val KEY_LAST_TAB_PATH = "last_tab_path"
         private const val KEY_CACHED_TABS = "cached_tabs"
         private const val KEY_SCROLL_POSITIONS = "scroll_positions"
     }

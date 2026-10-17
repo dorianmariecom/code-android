@@ -20,7 +20,7 @@ Kotlin code uses 4-space indentation and standard Android naming conventions (Pa
 
 ## Testing Guidelines
 
-No dedicated test modules or frameworks are visible here. If adding tests, use standard Android locations like `src/test/java` for unit tests and `src/androidTest/java` for instrumentation tests within the relevant module. Document any new test commands in this file.
+`./gradlew :app:testDevelopmentDebugUnitTest` runs the tab URL matching and path configuration unit tests. If adding tests, use standard Android locations like `src/test/java` for unit tests and `src/androidTest/java` for instrumentation tests within the relevant module. Document any new test commands in this file.
 
 ## Commit & Pull Request Guidelines
 

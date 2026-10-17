@@ -13,8 +13,8 @@ android {
         applicationId = "com.codedorian"
         minSdk = 28
         targetSdk = 36
-        versionCode = 401
-        versionName = "4.1"
+        versionCode = 406
+        versionName = "4.5"
     }
 
     buildFeatures {
@@ -135,6 +135,8 @@ kotlin {
 }
 
 dependencies {
+    implementation("com.squareup.okhttp3:okhttp:5.3.2")
+    testImplementation("junit:junit:4.13.2")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

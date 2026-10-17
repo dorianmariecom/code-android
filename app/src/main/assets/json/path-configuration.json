@@ -1,0 +1,46 @@
+{
+  "rules": [
+    {
+      "patterns": [
+        "/new$",
+        "/edit$"
+      ],
+      "properties": {
+        "context": "modal"
+      }
+    },
+    {
+      "patterns": [
+        ".*"
+      ],
+      "properties": {
+        "uri": "hotwire://fragment/web",
+        "context": "default",
+        "pull_to_refresh_enabled": true
+      }
+    },
+    {
+      "patterns": [
+        "/new$",
+        "/edit$"
+      ],
+      "properties": {
+        "uri": "hotwire://fragment/web/modal/sheet",
+        "context": "modal",
+        "pull_to_refresh_enabled": false
+      }
+    },
+    {
+      "patterns": [
+        "users/new$",
+        "session/new$"
+      ],
+      "properties": {
+        "uri": "hotwire://fragment/web",
+        "context": "default",
+        "pull_to_refresh_enabled": true
+      }
+    }
+  ],
+  "settings": {}
+}

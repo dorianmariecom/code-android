@@ -54,9 +54,14 @@ def upload_to_play(
 )
   version_code = nil
   effective_changelogs = changelogs_by_locale.to_h
-  if effective_changelogs.empty? && !changelog.to_s.strip.empty?
-    effective_changelogs = { "en-US" => changelog }
+  if effective_changelogs.empty?
+    effective_changelogs = {
+      "en-US" => ENV["EN_CHANGELOG"] || changelog || ENV["RELEASE_NOTES"],
+      "fr-FR" => ENV["FR_CHANGELOG"]
+    }
   end
+  effective_changelogs =
+    effective_changelogs.reject { |_, value| value.to_s.strip.empty? }
 
   version_code = version_code() unless effective_changelogs.empty?
 

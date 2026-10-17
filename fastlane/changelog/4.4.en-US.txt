@@ -1,0 +1,1 @@
+Long-press images to save them to Downloads. Improved tabs, remembered scroll positions, deep links, and refresh on tab selection. Fixed modal routing for creation and editing forms. Added support for wrapped server configurations and offline navigation rules. Updated Hotwire Native.

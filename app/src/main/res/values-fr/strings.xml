@@ -1,0 +1,17 @@
+<resources>
+  <string name="loading">chargement…</string>
+  <string name="hotwire_error_message">erreur, réessayez</string>
+  <string name="hotwire_file_chooser_select">sélectionner un fichier</string>
+  <string name="hotwire_file_chooser_select_multiple">sélectionner des fichiers</string>
+  <string name="hotwire_dialog_ok">ok</string>
+  <string name="hotwire_dialog_cancel">annuler</string>
+  <string name="copy_image">copier l\'image</string>
+  <string name="download_image">télécharger l\'image</string>
+  <string name="copy_image_started">Copie de l\'image…</string>
+  <string name="copy_image_completed">Image copiée</string>
+  <string name="copy_image_failed">Impossible de copier cette image. Veuillez réessayer.</string>
+  <string name="save_image_started">Téléchargement de l\'image dans Téléchargements…</string>
+  <string name="save_image_failed">Impossible de télécharger cette image. Veuillez réessayer.</string>
+  <string name="save_image_permission_denied">L\'autorisation d\'accès au stockage est nécessaire pour enregistrer les images.</string>
+  <string name="save_image_unsupported">Cette image ne peut pas être copiée ou téléchargée directement.</string>
+</resources>
