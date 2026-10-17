@@ -71,6 +71,10 @@ def upload_to_play(
         effective_changelogs,
         version_code: version_code
       )
+    # Google Play requires a title when introducing the French production locale.
+    if package_name == "com.codedorian" && effective_changelogs.key?("fr-FR")
+      File.write(File.join(metadata_path, "fr-FR", "title.txt"), "codedorian")
+    end
   end
 
   supply(
